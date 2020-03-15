@@ -17,8 +17,6 @@ df = pd.read_json(
     "datasets/yelp_full.json", orient="records", lines=True
 )
 
-df = df.set_index("review_id")
-
 df.drop(
     columns=[c for c in df.columns if c not in ["stars", "text"]],
     inplace=True,
@@ -28,4 +26,4 @@ assert (df.columns == ["stars", "text"]).all()
 df.stars = df.stars - 1
 assert ((df.stars >= 0) & (df.stars <= 4)).all()
 
-df.to_csv("datasets/yelp.csv")
+df.to_csv("datasets/yelp.csv", index=False)
