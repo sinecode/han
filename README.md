@@ -33,6 +33,16 @@ The classifier used is a multinomial logistic regression. The train set has size
 **How about the hyper paramenters of the multinomial Logistic Regression?**
 
 
+## Results
+
+Document classification, in percentage
+
+|               | **Yelp** | **Amazon** | **??** |
+|---------------|----------|------------|--------|
+| **BoW**       |   54.7   |            |        |
+| **BoW-TFIDF** |   54.7   |            |        |
+
+
 ## References
 
 [1] *Yang, Zichao, et al. "Hierarchical attention networks for document classification." Proceedings of the 2016 conference of the North American chapter of the association for computational linguistics: human language technologies. 2016.*
