@@ -6,41 +6,40 @@ The main goal of these experiments is to compare the performances of a Hierarchi
 
 ## Datasets
 
+To create the datasets used in the experiments, first download all the dataset accordingly to the instructions and then run
+
+    $ python setup_data.py
+
+This script creates `csv` files containing the same number of documents reported in the paper. **Each dataset is balanced**: there are the same number of elements for each class.
+
+To have more info about where to find the datasets and how to name the files read the following sections.
+
 ### Yelp
 
-The Yelp dataset was downloaded from [this page](https://www.yelp.com/dataset/download). It is not the dataset version reported in the paper, this one is a newer version that is a lot bigger then the Yelp dataset 2015. From all the dataset, I've kept the file `reviews.json`, which contains the reviews. Since in the paper, the experiment is done with a Yelp dataset with 1,569,264 reviews, I have resized my dataset to that size with the command:
+I wasn't able to find the Yelp 2015 dataset used in the paper. I downloaded a newer version of that dataset [here](https://www.yelp.com/dataset/download). I've kept only the `json` with the reviews and I named it `yelp.json`.
 
-    $ sort -R reviews.json | tail -1569264 > yelp_full.json
+### Yahoo
 
-which extracts randomly 1,569,264 reviews from the entire dataset.
+I downloaded the dataset [here](https://webscope.sandbox.yahoo.com/). I created the `.xml` dataset following the instruction then I renamed the final file `yahoo.xml`.
 
-To create the dataset used in the experiments, run:
+### Amazon
 
-    $ python yelp_setup.py
+I downloaded the "small" subset of Amazon review data about books [here](https://nijianmo.github.io/amazon/index.html), then I renamed it `amazon_books.json.gz`.
 
-This script will create a file called `yelp.csv`, which is a simplified version of `yelp_full.json`, where the columns with the reviews texts and the reviews stars are kept.
+## Experiments
 
-#### BoW / BoW-TFIDF
+### BoW / BoW-TFIDF
 
-The experiment with a BoW approach is described in [2].
-
-The classifier used is a multinomial logistic regression. The train set has size 130,000 and the test set has 10,000 elements for each star (there are in total five stars). 50,000 most frequent words are selected from the training sample. The features are normalized by dividing the largest feature value.
-
-**why not to use the entire dataset?**
-
-**It's not specified how the error rate is obtained. Is it a simple train and test? Or is it used a cross-validation approach?**
-
-**How about the hyper paramenters of the multinomial Logistic Regression?**
-
+These experiments are described in [2].
 
 ## Results
 
 Document classification, in percentage
 
-|               | **Yelp** | **Amazon** | **??** |
-|---------------|----------|------------|--------|
-| **BoW**       |   54.8   |            |        |
-| **BoW-TFIDF** |   54.8   |            |        |
+|               | **Yelp** | **Amazon** | **Yahoo** |
+|---------------|----------|------------|-----------|
+| **BoW**       |   54.8   |            |           |
+| **BoW-TFIDF** |   54.8   |            |           |
 
 
 ## References

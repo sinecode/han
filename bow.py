@@ -1,7 +1,8 @@
 """
 BoW based model.
 
-A multinomial logistic regression is used.
+A multinomial logistic regression is used together with
+a Stochastic Gradient Descent
 
 - Classic BoW
 - BoW-TFIDF
@@ -11,7 +12,7 @@ A multinomial logistic regression is used.
 import pandas as pd
 from sklearn.feature_extraction.text import CountVectorizer, TfidfVectorizer
 from sklearn.pipeline import make_pipeline
-from sklearn.linear_model import LogisticRegression
+from sklearn.linear_model import LogisticRegression, SGDClassifier
 from sklearn.preprocessing import MaxAbsScaler
 from sklearn.model_selection import GridSearchCV
 
@@ -26,7 +27,7 @@ if not sys.warnoptions:
 
 
 def load_dataset(dataset_name):
-    return pd.read_csv(dataset_name)
+    return pd.read_csv(dataset_name).fillna("")
 
 
 def train_test_split(df, train_size, test_size_per_class):
@@ -44,8 +45,10 @@ def train_test_split(df, train_size, test_size_per_class):
             for star in df.stars.unique()
         ]
     )
+    assert (test_df.count() == test_df.dropna().count()).all()
+
     assert (
-        test_df.stars.value_counts(sort=False) == [test_size_per_class] * 5
+        test_df.count() == [test_size_per_class * len(df.stars.unique())] * 2
     ).all()
 
     train_df = df.drop(test_df.index).sample(train_size, random_state=20)
@@ -63,16 +66,15 @@ def train_test_split(df, train_size, test_size_per_class):
     return text_train, y_train, text_test, y_test
 
 
-def run_experiment(vectorizer, text_train, y_train, text_test, y_test):
+def run_experiment(
+    vectorizer, classifier, param_grid, text_train, y_train, text_test, y_test
+):
     """
     Run the experiment with the specified vectorizer.
 
     Return the accuracy score on the test set.
     """
-    pipe = make_pipeline(
-        vectorizer, MaxAbsScaler(copy=False), LogisticRegression(solver="sag"),
-    )
-    param_grid = {"logisticregression__C": [0.001, 0.01, 0.1, 1, 10]}
+    pipe = make_pipeline(vectorizer, MaxAbsScaler(copy=False), classifier,)
     grid = GridSearchCV(pipe, param_grid, cv=5, n_jobs=-1)
     grid.fit(text_train, y_train)
     print(f"Best CV score: {grid.best_score_}")
@@ -81,19 +83,40 @@ def run_experiment(vectorizer, text_train, y_train, text_test, y_test):
 
 
 def main():
+    dataset_dir = "datasets"
     exp_data = [
-        ("yelp.csv", 130_000, 10_000),
-        ("amazon.json", 600_000, 130_000),
+        # (
+        #    "yelp.csv",
+        #    LogisticRegression(solver="sag"),
+        #    {"logisticregression__C": [0.001, 0.01, 0.1, 1, 10]},
+        #    130_000,
+        #    10_000,
+        # ),
+        (
+            "amazon.csv",
+            SGDClassifier(loss="log"),
+            {"sgdclassifier__alpha": [0.00001, 0.0001, 0.001, 0.01, 0.1]},
+            600_000,
+            13_000,
+        ),
     ]
-    for dataset_name, train_size, test_size_per_class in exp_data:
-        print("==============================")
+    for (
+        dataset_name,
+        classifier,
+        param_grid,
+        train_size,
+        test_size_per_class,
+    ) in exp_data:
+        print("=============================================")
         print(dataset_name.split(".")[0])
-        dataset = load_dataset(dataset_name)
+        dataset = load_dataset(dataset_dir + "/" + dataset_name)
         text_train, y_train, text_test, y_test = train_test_split(
-            df, train_size, test_size_per_class
+            dataset, train_size, test_size_per_class
         )
         accuracy = run_experiment(
             CountVectorizer(max_features=50_000),
+            classifier,
+            param_grid,
             text_train,
             y_train,
             text_test,
@@ -102,6 +125,8 @@ def main():
         print(f"BoW: {accuracy}")
         accuracy = run_experiment(
             TfidfVectorizer(max_features=50_000, norm=None),
+            classifier,
+            param_grid,
             text_train,
             y_train,
             text_test,
