@@ -1,6 +1,8 @@
 from pathlib import Path
+from pprint import pprint
 
 import pandas as pd
+from lxml import etree
 
 
 DATASETS_DIR = "datasets"
@@ -77,6 +79,62 @@ class DataExtractor:
         df.to_csv(f"{DATASETS_DIR}/{self.dataset_name}.csv", index=False)
 
 
+def setup_yahoo_data(num_per_category):
+    categories_count = {
+        "Business & Finance": 0,
+        "Computers & Internet": 0,
+        "Family & Relationships": 0,
+        "Entertainment & Music": 0,
+        "Health": 0,
+        "Science & Mathematics": 0,
+        "Education & Reference": 0,
+        "Society & Culture": 0,
+        "Politics & Government": 0,
+        "Sports": 0,
+    }
+    num_categories = len(categories_count)
+    dataset_size = num_categories * num_per_category
+    df = pd.DataFrame()
+    for _, e in etree.iterparse("datasets/FullOct2007.xml", tag="document"):
+        category_element = e.find("maincat")
+        if category_element is None:
+            # The question needs to be categorized
+            continue
+        category = category_element.text
+        if (
+            category in categories_count
+            and categories_count[category] < num_per_category
+        ):
+            categories_count[category] += 1
+            text = ""
+            subject_element = e.find("subject")
+            if subject_element is not None:
+                text += subject_element.text
+            content_element = e.find("content")
+            if content_element is not None:
+                text += content_element.text
+            best_answer_element = e.find("bestanswer")
+            if best_answer_element is not None:
+                text += best_answer_element.text
+            text = text.replace("<br />", " ")
+            df = df.append(
+                pd.Series({"text": text, "category": category}),
+                ignore_index=True,
+            )
+            if df.shape[0] % 10000 == 0:
+                pprint(categories_count)
+            if sum(categories_count.values()) == dataset_size:
+                break
+    else:
+        raise ValueError(f"Can't find {num_per_category} for each category")
+
+    df = df.sample(frac=1, random_state=20)  # shuffle the DataFrame
+    assert (
+        df.category.value_counts() == [num_per_category] * num_categories
+    ).all()
+    df.to_csv(f"{DATASETS_DIR}/yahoo.csv", index=False)
+
+
 def main():
     # DataExtractor(
     #    dataset_name="yelp",
@@ -87,14 +145,15 @@ def main():
     #    class_column="stars",
     # ).setup_data()
 
-    DataExtractor(
-        dataset_name="amazon",
-        dataset_file=Path(DATASETS_DIR) / "amazon_books.json.gz",
-        class_labels=(1, 2, 3, 4, 5),
-        num_per_class=3_650_000 // 5,
-        columns=("reviewText", "overall"),
-        class_column="overall",
-    ).setup_data()
+    # DataExtractor(
+    #    dataset_name="amazon",
+    #    dataset_file=Path(DATASETS_DIR) / "amazon_books.json.gz",
+    #    class_labels=(1, 2, 3, 4, 5),
+    #    num_per_class=3_650_000 // 5,
+    #    columns=("reviewText", "overall"),
+    #    class_column="overall",
+    # ).setup_data()
+    setup_yahoo_data(145_000)
 
 
 if __name__ == "__main__":
