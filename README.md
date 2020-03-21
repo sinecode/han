@@ -8,10 +8,10 @@ The main goal of these experiments is to compare the performances of a Hierarchi
 
 Document classification, in percentage
 
-|               | **Yelp** | **Amazon** | **Yahoo** |
-|---------------|----------|------------|-----------|
-| **BoW**       |          |            |           |
-| **BoW-TFIDF** |          |            |           |
+|               | **Yelp** | **Yahoo** | **Amazon** |
+|---------------|----------|-----------|------------|
+| **BoW**       |   59.0   |   58.7    |    47.2    |
+| **BoW-TFIDF** |   59.0   |   58.6    |    47.3    |
 
 
 ## References
