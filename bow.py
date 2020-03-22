@@ -2,7 +2,7 @@
 BoW based models.
 
 A multinomial logistic regression is used together with
-a Stochastic Gradient Descent
+a Stochastic Gradient Descent.
 
 - Classic BoW
 - BoW-TFIDF
@@ -15,8 +15,6 @@ from sklearn.pipeline import make_pipeline
 from sklearn.feature_extraction.text import CountVectorizer, TfidfVectorizer
 from sklearn.preprocessing import MaxAbsScaler
 from sklearn.linear_model import SGDClassifier
-
-from sklearn.metrics import accuracy_score
 
 
 DATASETS_DIR = "datasets"
@@ -34,85 +32,28 @@ def run_experiment(vectorizer, text_train, y_train, text_test, y_test):
         SGDClassifier(loss="log", random_state=20),  # logistic regression
     )
     param_grid = {"sgdclassifier__alpha": [0.00001, 0.0001, 0.001, 0.01, 0.1]}
-    grid = GridSearchCV(pipe, param_grid, cv=5, n_jobs=1)
+    grid = GridSearchCV(pipe, param_grid, cv=5, n_jobs=4)
     grid.fit(text_train, y_train)
     print(f"Best training score: {grid.best_score_}")
-    return accuracy_score(y_test, grid.predict(text_test))
+    print(f"Best params: {grid.best_params_}")
+    return grid.score(text_test, y_test)
 
 
-def main():
-    # print("=================== Yelp ========================")
-    # print("")
-    # yelp_df = pd.read_csv(f"{DATASETS_DIR}/yelp.csv").fillna("")
-    # text_train, text_test, y_train, y_test = train_test_split(
-    #    yelp_df.text,
-    #    yelp_df.stars,
-    #    test_size=0.1,
-    #    stratify=yelp_df.stars,
-    #    random_state=20,
-    # )
-    # accuracy = run_experiment(
-    #    CountVectorizer(max_features=50_000),
-    #    text_train,
-    #    y_train,
-    #    text_test,
-    #    y_test,
-    # )
-    # print(f"BoW: {accuracy}")
-    # accuracy = run_experiment(
-    #    TfidfVectorizer(max_features=50_000, norm=None),
-    #    text_train,
-    #    y_train,
-    #    text_test,
-    #    y_test,
-    # )
-    # print(f"BoW-TFIDF: {accuracy}")
-
-    # print("=================== Yahoo =======================")
-    # print("")
-    # yahoo_df = pd.read_csv(f"{DATASETS_DIR}/yahoo.csv").fillna("")
-    # text_train, text_test, y_train, y_test = train_test_split(
-    #    yahoo_df.text,
-    #    yahoo_df.category,
-    #    test_size=0.1,
-    #    stratify=yahoo_df.category,
-    #    random_state=20,
-    # )
-    # accuracy = run_experiment(
-    #    CountVectorizer(max_features=50_000),
-    #    text_train,
-    #    y_train,
-    #    text_test,
-    #    y_test,
-    # )
-    # print(f"BoW: {accuracy}")
-    # accuracy = run_experiment(
-    #    TfidfVectorizer(max_features=50_000, norm=None),
-    #    text_train,
-    #    y_train,
-    #    text_test,
-    #    y_test,
-    # )
-    # print(f"BoW-TFIDF: {accuracy}")
-
-    print("=================== Amazon =======================")
+def process_dataset(csv_file):
+    print(f"=================== {csv_file} ====================")
     print("")
-    amazon_df = pd.read_csv(f"{DATASETS_DIR}/amazon.csv").fillna("")
+    df = pd.read_csv(csv_file).fillna("")
     text_train, text_test, y_train, y_test = train_test_split(
-        amazon_df.reviewText,
-        amazon_df.overall,
-        test_size=0.1,
-        stratify=amazon_df.overall,
-        random_state=20,
+        df.text, df.label, test_size=0.1, stratify=df.label, random_state=20,
     )
-    # accuracy = run_experiment(
-    #    CountVectorizer(max_features=50_000),
-    #    text_train,
-    #    y_train,
-    #    text_test,
-    #    y_test,
-    # )
-    # print(f"BoW: {accuracy}")
+    accuracy = run_experiment(
+        CountVectorizer(max_features=50_000),
+        text_train,
+        y_train,
+        text_test,
+        y_test,
+    )
+    print(f"BoW: {accuracy}")
     accuracy = run_experiment(
         TfidfVectorizer(max_features=50_000, norm=None),
         text_train,
@@ -121,6 +62,12 @@ def main():
         y_test,
     )
     print(f"BoW-TFIDF: {accuracy}")
+
+
+def main():
+    process_dataset(f"{DATASETS_DIR}/yelp.csv")
+    # process_dataset(f"{DATASETS_DIR}/yahoo.csv")
+    # process_dataset(f"{DATASETS_DIR}/amazon.csv")
 
 
 if __name__ == "__main__":
