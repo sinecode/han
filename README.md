@@ -10,8 +10,8 @@ Document classification, in percentage
 
 |               | **Yelp** | **Yahoo** | **Amazon** |
 |---------------|----------|-----------|------------|
-| **BoW**       |   59.0   |   58.7    |    47.2    |
-| **BoW-TFIDF** |   59.0   |   58.6    |    47.3    |
+| **BoW**       |   61.4   |   66.9    |    52.2    |
+| **BoW-TFIDF** |   61.4   |   66.9    |    52.2    |
 
 
 ## References
