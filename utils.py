@@ -20,6 +20,19 @@ def split_text(nlp_pipeline, text):
     ]
 
 
+def balanced_sample(df, num_per_class):
+    "Return a balanced sample from the input DataFrame"
+    label_counts = df.label.value_counts()
+    unique_labels = set(label_counts.index)
+    assert (label_counts >= [num_per_class] * len(unique_labels)).all()
+    return pd.concat(
+        [
+            df[df.label == class_label].sample(num_per_class)
+            for class_label in unique_labels
+        ]
+    ).sample(frac=1)
+
+
 def load_tokenized_dataset(csv_file):
     df = pd.read_csv(csv_file, dtype={"class": str, "tokens": str})
     df.tokens = df.tokens.apply(literal_eval)
