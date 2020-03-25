@@ -4,17 +4,16 @@ from ast import literal_eval
 from typing import List
 
 import pandas as pd
-import tensorflow as tf
 import stanza
 
 
-def split_text(
-    nlp_pipeline: stanza.pipeline.core.Pipeline, text: str
+def tokenize_text(
+    nlp: stanza.pipeline.core.Pipeline, text: str
 ) -> List[List[str]]:
     """
     Split the text in sentences and tokenize each sentence.
     """
-    doc = nlp_pipeline(text)
+    doc = nlp(text)
     return [
         [token.text for token in sentence.tokens] for sentence in doc.sentences
     ]
