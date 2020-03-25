@@ -1,18 +1,18 @@
 from itertools import chain
 from collections import Counter
 from ast import literal_eval
+from typing import List
 
 import pandas as pd
+import tensorflow as tf
+import stanza
 
 
-def split_text(nlp_pipeline, text):
-    """Split the text in sentences and tokenize each sentence.
-
-    >>> import stanza
-    >>> stanza.download(lang="en", processors="tokenize", verbose=False)
-    >>> nlp = stanza.Pipeline(lang="en", processors="tokenize", verbose=False)
-    >>> split_text(nlp, "First sentence. Second sentence.")
-    [['First', 'sentence', '.'], ['Second', 'sentence', '.']]
+def split_text(
+    nlp_pipeline: stanza.pipeline.core.Pipeline, text: str
+) -> List[List[str]]:
+    """
+    Split the text in sentences and tokenize each sentence.
     """
     doc = nlp_pipeline(text)
     return [
@@ -20,7 +20,7 @@ def split_text(nlp_pipeline, text):
     ]
 
 
-def balanced_sample(df, num_per_class):
+def balanced_sample(df: pd.DataFrame, num_per_class: int) -> pd.DataFrame:
     "Return a balanced sample from the input DataFrame"
     label_counts = df.label.value_counts()
     unique_labels = set(label_counts.index)
@@ -33,14 +33,14 @@ def balanced_sample(df, num_per_class):
     ).sample(frac=1)
 
 
-def load_tokenized_dataset(csv_file):
+def load_tokenized_dataset(csv_file: str) -> pd.DataFrame:
     df = pd.read_csv(csv_file, dtype={"class": str, "tokens": str})
     df.tokens = df.tokens.apply(literal_eval)
     assert (df.tokens.apply(type).unique() == [list]).all()
     return df
 
 
-def flat_nested_list(x):
+def flat_nested_list(x: List[List]) -> List:
     """Flat a list of lists to a one dimension list.
 
     >>> flat_nested_list([[1, 2, 3], [4, 5]])
