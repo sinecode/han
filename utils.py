@@ -8,14 +8,15 @@ import stanza
 
 
 def tokenize_text(
-    nlp: stanza.pipeline.core.Pipeline, text: str
+    nlp: stanza.pipeline.core.Pipeline, text: str,
 ) -> List[List[str]]:
     """
     Split the text in sentences and tokenize each sentence.
     """
     doc = nlp(text)
     return [
-        [token.text for token in sentence.tokens] for sentence in doc.sentences
+        [token.text.lower() for token in sentence.tokens]
+        for sentence in doc.sentences
     ]
 
 
