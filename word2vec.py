@@ -31,6 +31,10 @@ class SentencesIterator:
                     self.cached_sentences.append(tokens)
                     yield tokens
                 self.num_words_per_doc.append(num_words)
+                if len(self.num_sentences_per_doc) % 1_000:
+                    print(
+                        f"Processed {len(self.num_sentences_per_doc)} of {self.num_doc} documents"
+                    )
             self.is_cache_active = True
         else:
             for sentence in self.cached_sentences:
@@ -47,7 +51,7 @@ class SentencesIterator:
 
 
 def train_word2vec_model(dataset_file: str) -> gensim.models.word2vec.Word2Vec:
-    df = pd.read_csv(dataset_file)
+    df = pd.read_csv(dataset_file).fillna("")
     model = Word2Vec(min_count=6, size=200)
     nlp = stanza.Pipeline(
         lang="en", processors="tokenize", use_gpu=True, verbose=False,
@@ -65,5 +69,5 @@ def train_word2vec_model(dataset_file: str) -> gensim.models.word2vec.Word2Vec:
 
 
 if __name__ == "__main__":
-    model = train_word2vec_model("datasets/yahoo_1k_sample.csv")
-    model.save("embedding/yahoo_embedding.wv")
+    model = train_word2vec_model("datasets/amazon.csv")
+    model.wv.save("embedding/amazon_embedding.wv")
