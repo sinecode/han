@@ -4,20 +4,11 @@ from ast import literal_eval
 from typing import List
 
 import pandas as pd
-import stanza
+from nltk.tokenize import sent_tokenize, word_tokenize
 
 
-def tokenize_text(
-    nlp: stanza.pipeline.core.Pipeline, text: str,
-) -> List[List[str]]:
-    """
-    Split the text in sentences and tokenize each sentence.
-    """
-    doc = nlp(text)
-    return [
-        [token.text.lower() for token in sentence.tokens]
-        for sentence in doc.sentences
-    ]
+def tokenize_text(text: str) -> List[List[str]]:
+    return [word_tokenize(sentence) for sentence in sent_tokenize(text)]
 
 
 def balanced_sample(df: pd.DataFrame, num_per_class: int) -> pd.DataFrame:
