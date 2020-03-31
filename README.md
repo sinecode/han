@@ -6,11 +6,13 @@ The main goal of these experiments is to compare the performances of a Hierarchi
 
 ## Datasets
 
-| **Dataset** | **Classes** | **max #s (train)** | **max #w (train)** |
------------------------------------------------------------------------
-|   Yelp      |      5      |        151         |        805         |
-|   Yahoo     |      10     |        514         |        3977        |
-|   Amazon    |      5      |        660         |        1981        |
+I wasn't able to find the exactly datasets of the paper, so I have created three datasets from three cited sources: Yelp, Yahoo and Amazon. The datasets are perfectly balanced with all the classes.
+
+|  **Dataset**  | **Classes** | **Documents** |
+|---------------|-------------|---------------|
+|     Yelp      |      5      |   1,569,000   |
+| Yahoo Answer  |      10     |   1,450,000   |
+| Amazon review |      5      |   3,650,000   |
 
 ## Results
 
@@ -18,8 +20,8 @@ Document classification, in percentage
 
 |               | **Yelp** | **Yahoo** | **Amazon** |
 |---------------|----------|-----------|------------|
-| **BoW**       |   61.4   |   66.9    |    52.2    |
-| **BoW-TFIDF** |   61.4   |   66.9    |    52.2    |
+| **BoW**       |   61.3   |   66.9    |    52.2    |
+| **BoW-TFIDF** |   61.3   |   66.9    |    52.2    |
 
 ## Notes
 
@@ -39,5 +41,3 @@ The Yahoo answer categories are mapped as the following:
 ## References
 
 [1] *Yang, Zichao, et al. "Hierarchical attention networks for document classification." Proceedings of the 2016 conference of the North American chapter of the association for computational linguistics: human language technologies. 2016.*
-
-[2] *Zhang, Xiang, Junbo Zhao, and Yann LeCun. "Character-level convolutional networks for text classification." Advances in neural information processing systems. 2015.*
