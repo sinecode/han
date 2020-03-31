@@ -1,5 +1,4 @@
 import torch
-from gensim.models import KeyedVectors
 
 
 class WordEncoder(torch.nn.Module):

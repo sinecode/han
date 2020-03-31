@@ -4,6 +4,14 @@ Replication of some of the experiments reported in [1].
 
 The main goal of these experiments is to compare the performances of a Hierarchical Attention Network with a classic BoW approach.
 
+## Datasets
+
+| **Dataset** | **Classes** | **max #s (train)** | **max #w (train)** |
+-----------------------------------------------------------------------
+|   Yelp      |      5      |        151         |        805         |
+|   Yahoo     |      10     |        514         |        3977        |
+|   Amazon    |      5      |        660         |        1981        |
+
 ## Results
 
 Document classification, in percentage
@@ -17,16 +25,16 @@ Document classification, in percentage
 
 The Yahoo answer categories are mapped as the following:
 
-0: *Business & Finance*
-1: *Computers & Internet*
-2: *Education & Reference*
-3: *Entertainment & Music*
-4: *Family & Relationships*
-5: *Health*
-6: *Politics & Government*
-7: *Science & Mathematics*
-8: *Society & Culture*
-9: *Sports*
+* 0: *Business & Finance*
+* 1: *Computers & Internet*
+* 2: *Education & Reference*
+* 3: *Entertainment & Music*
+* 4: *Family & Relationships*
+* 5: *Health*
+* 6: *Politics & Government*
+* 7: *Science & Mathematics*
+* 8: *Society & Culture*
+* 9: *Sports*
 
 ## References
 
