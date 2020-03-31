@@ -9,15 +9,14 @@ a Stochastic Gradient Descent.
 """
 
 
+import argparse
+
 import pandas as pd
 from sklearn.model_selection import train_test_split, GridSearchCV
 from sklearn.pipeline import make_pipeline
 from sklearn.feature_extraction.text import CountVectorizer, TfidfVectorizer
 from sklearn.preprocessing import MaxAbsScaler
 from sklearn.linear_model import SGDClassifier
-
-
-DATASETS_DIR = "datasets"
 
 
 def run_experiment(vectorizer, text_train, y_train, text_test, y_test):
@@ -40,7 +39,7 @@ def run_experiment(vectorizer, text_train, y_train, text_test, y_test):
 
 
 def process_dataset(csv_file):
-    print(f"=================== {csv_file} ====================")
+    print(f"Processing {csv_file}")
     print("")
     df = pd.read_csv(csv_file).fillna("")
     text_train, text_test, y_train, y_test = train_test_split(
@@ -54,6 +53,7 @@ def process_dataset(csv_file):
         y_test,
     )
     print(f"BoW: {accuracy}")
+    print("")
     accuracy = run_experiment(
         TfidfVectorizer(max_features=50_000, norm=None),
         text_train,
@@ -65,9 +65,13 @@ def process_dataset(csv_file):
 
 
 def main():
-    process_dataset(f"{DATASETS_DIR}/yelp.csv")
-    # process_dataset(f"{DATASETS_DIR}/yahoo.csv")
-    # process_dataset(f"{DATASETS_DIR}/amazon.csv")
+    parser = argparse.ArgumentParser(
+        description="Run the experiment with a BoW model"
+    )
+    parser.add_argument("dataset", help="Dataset csv file")
+
+    args = parser.parse_args()
+    process_dataset(args.dataset)
 
 
 if __name__ == "__main__":
