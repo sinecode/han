@@ -2,16 +2,11 @@
 
 
 import argparse
-import pickle
 
 from gensim.models import Word2Vec
 from tqdm import tqdm
 
-
-def load_pickled_dataset(filename):
-    with open(filename, "rb") as f:
-        ds = pickle.load(f)
-    return ds
+from utils import load_pickled_obj
 
 
 class SentenceIterator:
@@ -50,6 +45,6 @@ if __name__ == "__main__":
     tokenized_dataset = args.tokenized_dataset
     embedding_file_name = args.embedding_file
 
-    ds = load_pickled_dataset(tokenized_dataset)
-    model = train_word2vec_model(ds)
+    dataset = load_pickled_obj(tokenized_dataset)
+    model = train_word2vec_model(dataset)
     model.wv.save(embedding_file_name)

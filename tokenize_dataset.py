@@ -1,10 +1,12 @@
 import argparse
-import pickle
 from statistics import mean
+from typing import List, Tuple
 
 import pandas as pd
 from nltk.tokenize import sent_tokenize, word_tokenize
 from tqdm import tqdm
+
+from utils import save_obj_as_pickle
 
 
 def preprocess_doc(doc):
@@ -39,11 +41,16 @@ def tokenize_dataset(dataset_file_name, output_file_name):
     print(f"Max words per sentence: {max(num_words_per_sent)}")
     print(f"Average words per document: {mean(num_words_per_doc)}")
     print(f"Max words per document: {max(num_words_per_doc)}")
+    return tokenized
 
 
-def save_dataset(dataset, filename):
-    with open(filename, "wb") as f:
-        pickle.dump(tokenized, f)
+def sort_dataset(dataset):
+    """
+    Sort the input dataset by the number of sentences in the document,
+    from the document with the largest number of sentences to the
+    document with the minor number.
+    """
+    return sorted(dataset, key=lambda x: len(x[1]), reverse=True)
 
 
 if __name__ == "__main__":
@@ -58,5 +65,6 @@ if __name__ == "__main__":
     args = parser.parse_args()
     dataset_file_name = args.dataset_file
     output_file_name = args.output_file
-    tokenized = tokenize_dataset(dataset_file_name, output_file_name)
-    save_dataset(tokenized, output_file_name)
+    dataset = tokenize_dataset(dataset_file_name, output_file_name)
+    dataset = sort_dataset(dataset)
+    save_obj_as_pickle(dataset, output_file_name)
