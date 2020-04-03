@@ -50,8 +50,6 @@ if __name__ == "__main__":
     tokenized_dataset = args.tokenized_dataset
     embedding_file_name = args.embedding_file
 
-    print(f"Processing {tokenized_dataset}")
     ds = load_pickled_dataset(tokenized_dataset)
     model = train_word2vec_model(ds)
     model.wv.save(embedding_file_name)
-    print(f"Saved {embedding_file_name}")
