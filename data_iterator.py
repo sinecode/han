@@ -23,7 +23,9 @@ class DataIterator:
 
     def __iter__(self):
         for batch in tqdm(
-            grouper(self.dataset, self.batch_size), total=len(self.dataset)
+            grouper(self.dataset, self.batch_size),
+            total=len(self.dataset),
+            disable=True,
         ):
             num_doc = self.batch_size
             max_sent_per_doc = max(len(doc) for _, doc in batch)
