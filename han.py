@@ -34,6 +34,7 @@ class Han(torch.nn.Module):
     def __init__(
         self,
         embedding_matrix,
+        num_classes,
         batch_size=64,
         word_hidden_size=50,
         sent_hidden_size=50,
@@ -50,7 +51,7 @@ class Han(torch.nn.Module):
         self.sent_encoder = Encoder(word_hidden_size * 2, sent_hidden_size)
         self.sent_attention = Attention(input_size=sent_hidden_size * 2)
         self.last_layer = torch.nn.Linear(
-            in_features=sent_hidden_size * 2, out_features=1
+            in_features=sent_hidden_size * 2, out_features=num_classes
         )
 
     def forward(self, input):
@@ -78,6 +79,6 @@ class Han(torch.nn.Module):
         )
         output = self.sent_attention(output)
         output = torch.nn.functional.softmax(
-            self.last_layer(output), dim=-1
+            self.last_layer(output), dim=0
         ).squeeze(1)
         return output
