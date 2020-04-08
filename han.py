@@ -44,14 +44,24 @@ class Han(torch.nn.Module):
         self.embedding = torch.nn.Embedding.from_pretrained(
             embeddings=torch.FloatTensor(embedding_matrix), freeze=True,
         )
-        self.word_hidden_state = torch.zeros(2, batch_size, word_hidden_size)
+        self.batch_size = batch_size
+        self.word_hidden_size = word_hidden_size
+        self.sent_hidden_size = sent_hidden_size
+        self.init_hidden_state()
         self.word_encoder = Encoder(embedding_dim, word_hidden_size)
         self.word_attention = Attention(input_size=word_hidden_size * 2)
-        self.sent_hidden_state = torch.zeros(2, batch_size, sent_hidden_size)
         self.sent_encoder = Encoder(word_hidden_size * 2, sent_hidden_size)
         self.sent_attention = Attention(input_size=sent_hidden_size * 2)
         self.last_layer = torch.nn.Linear(
             in_features=sent_hidden_size * 2, out_features=num_classes
+        )
+
+    def init_hidden_state(self):
+        self.word_hidden_state = torch.zeros(
+            2, self.batch_size, self.word_hidden_size
+        )
+        self.sent_hidden_state = torch.zeros(
+            2, self.batch_size, self.sent_hidden_size
         )
 
     def forward(self, input):
