@@ -22,12 +22,13 @@ class Attention(torch.nn.Module):
 
     def forward(self, input):
         output = torch.tanh(self.linear(input))
-        output = torch.matmul(output, self.context_vector).squeeze()
+        output = torch.matmul(output, self.context_vector).squeeze(dim=-1)
         output = torch.nn.functional.softmax(output, dim=-1)
-        return sum(
-            alpha.unsqueeze(1).expand_as(h) * h
-            for alpha, h in zip(output, input)
-        )
+        outs = []
+        for alpha, h in zip(output, input):
+            alpha = alpha.unsqueeze(1).expand_as(h)
+            outs.append(alpha * h)
+        return sum(outs)
 
 
 class Han(torch.nn.Module):

@@ -6,11 +6,10 @@ from gensim.models import KeyedVectors
 from data_iterator import DataIterator
 from han import Han
 from utils import load_pickled_obj
-import config
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Train the HAN model")
+    parser = argparse.ArgumentParser(description="Test the HAN model")
     parser.add_argument(
         "tokenized_dataset",
         help="Pickle file where is stored the tokenized text",
@@ -19,7 +18,7 @@ def main():
         "embedding_file", help="File name where is stored the word2vec model",
     )
     parser.add_argument(
-        "model_file", help="File name where to store the trained model",
+        "model_file", help="File name where is stored the tested model",
     )
 
     args = parser.parse_args()
@@ -29,35 +28,25 @@ def main():
     model_file = args.model_file
     model = Han(embedding_matrix=wv.vectors, num_classes=5)
     data_iterator = DataIterator(dataset, wv.vocab)
-    train(model, data_iterator)
-    torch.save(model.state_dict(), model_file)
+    test(model, data_iterator)
 
 
-def train(model, data_iterator):
-    criterion = torch.nn.NLLLoss()
-    optimizer = torch.optim.SGD(model.parameters(), lr=0.1, momentum=0.9)
-
-    for epoch in range(config.EPOCHS):
-        running_loss = 0.0
+def test(model, data_iterator):
+    correct = 0
+    total = 0
+    with torch.no_grad():
         for i, (labels, features) in enumerate(data_iterator):
             labels = torch.LongTensor(labels)
             labels -= 1
             features = torch.LongTensor(features)
 
-            optimizer.zero_grad()
             model.init_hidden_state()
 
             outputs = model(features)
-            loss = criterion(outputs, labels)
-            loss.backward()
-            optimizer.step()
-
-            running_loss += loss.item()
-            if i % 1000 == 99:
-                print(
-                    f"[epoch={epoch}, batch={i}] "
-                    f"Training loss: {round(running_loss, 3)}"
-                )
+            _, predicted = torch.max(outputs.data, 1)
+            total += labels.size(0)
+            correct += (predicted == labels).sum().item()
+    print(f"Test accuracy: {100 * correct / total}")
 
 
 if __name__ == "__main__":
