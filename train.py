@@ -35,7 +35,11 @@ def main():
 
 def train(model, data_iterator):
     criterion = torch.nn.NLLLoss()
-    optimizer = torch.optim.SGD(model.parameters(), lr=0.1, momentum=0.9)
+    optimizer = torch.optim.SGD(
+        model.parameters(), lr=config.LEARNING_RATE, momentum=0.9
+    )
+
+    model.to(config.DEVICE)
 
     for epoch in range(config.EPOCHS):
         running_loss = 0.0
@@ -43,6 +47,9 @@ def train(model, data_iterator):
             labels = torch.LongTensor(labels)
             labels -= 1
             features = torch.LongTensor(features)
+
+            labels = labels.to(config.DEVICE)  # why?
+            features.to(config.DEVICE)
 
             optimizer.zero_grad()
             model.init_hidden_state()
@@ -53,7 +60,7 @@ def train(model, data_iterator):
             optimizer.step()
 
             running_loss += loss.item()
-            if i % 1000 == 99:
+            if i % 1000 == 999:
                 print(
                     f"[epoch={epoch}, batch={i}] "
                     f"Training loss: {round(running_loss, 3)}"

@@ -6,6 +6,7 @@ from gensim.models import KeyedVectors
 from data_iterator import DataIterator
 from han import Han
 from utils import load_pickled_obj
+import config
 
 
 def main():
@@ -32,6 +33,7 @@ def main():
 
 
 def test(model, data_iterator):
+    model.to(config.DEVICE)
     correct = 0
     total = 0
     with torch.no_grad():
@@ -40,13 +42,16 @@ def test(model, data_iterator):
             labels -= 1
             features = torch.LongTensor(features)
 
+            labels = labels.to(config.DEVICE)  # why?
+            features.to(config.DEVICE)
+
             model.init_hidden_state()
 
             outputs = model(features)
             _, predicted = torch.max(outputs.data, 1)
             total += labels.size(0)
             correct += (predicted == labels).sum().item()
-    print(f"Test accuracy: {100 * correct / total}")
+    print(f"Accuracy: {100 * correct / total}")
 
 
 if __name__ == "__main__":

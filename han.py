@@ -1,5 +1,7 @@
 import torch
 
+import config
+
 
 class Encoder(torch.nn.Module):
     def __init__(self, input_size, hidden_size):
@@ -60,10 +62,10 @@ class Han(torch.nn.Module):
     def init_hidden_state(self):
         self.word_hidden_state = torch.zeros(
             2, self.batch_size, self.word_hidden_size
-        )
+        ).to(config.DEVICE)
         self.sent_hidden_state = torch.zeros(
             2, self.batch_size, self.sent_hidden_size
-        )
+        ).to(config.DEVICE)
 
     def forward(self, input):
         output_list = []
@@ -77,7 +79,7 @@ class Han(torch.nn.Module):
         # etc...
         for i in input:
             # reshape as [num_words_per_doc, batch_size]
-            i = i.permute(1, 0)
+            i = i.permute(1, 0).to(config.DEVICE)
             output = self.embedding(i)
             output, self.word_hidden_state = self.word_encoder(
                 output.float(), self.word_hidden_state
