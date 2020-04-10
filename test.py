@@ -38,9 +38,9 @@ def test(model, data_iterator):
     total = 0
     with torch.no_grad():
         for i, (labels, features) in enumerate(data_iterator):
-            labels = torch.LongTensor(labels)
+            labels = torch.LongTensor(labels).to(config.DEVICE)
             labels -= 1
-            features = torch.LongTensor(features)
+            features = torch.LongTensor(features).to(config.DEVICE)
 
             labels = labels.to(config.DEVICE)  # why?
             features.to(config.DEVICE)

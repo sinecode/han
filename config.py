@@ -1,7 +1,5 @@
-import torch
-
-
 DEVICE = "cuda:0"
 # DEVICE = "cpu"
 EPOCHS = 10
+BATCH_SIZE = 64
 LEARNING_RATE = 0.001

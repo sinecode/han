@@ -1,12 +1,10 @@
-"""Train an unsupervised word2vec model"""
-
-
 import argparse
 
+import pandas as pd
 from gensim.models import Word2Vec
 from tqdm import tqdm
 
-from utils import load_pickled_obj
+from utils import tokenize_doc, load_pickled_obj
 
 
 class SentenceIterator:
@@ -14,8 +12,11 @@ class SentenceIterator:
         self.dataset = dataset
 
     def __iter__(self):
-        for _, doc in tqdm(self.dataset):
-            for sentence in doc:
+        for _, doc in tqdm(
+            self.dataset.itertuples(index=False), total=len(self.dataset)
+        ):
+            tokenized_doc = tokenize_doc(doc)
+            for sentence in tokenized_doc:
                 yield sentence
 
 
@@ -34,17 +35,16 @@ def train_word2vec_model(dataset, min_count=5, dim_embedding=200):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Create a word2vec model")
     parser.add_argument(
-        "tokenized_dataset",
-        help="Pickle file where is stored the tokenized text",
+        "dataset", help="CSV file where is stored the dataset",
     )
     parser.add_argument(
         "embedding_file", help="File name where to store the word2vec model",
     )
 
     args = parser.parse_args()
-    tokenized_dataset = args.tokenized_dataset
+    tokenized_dataset = args.dataset
     embedding_file_name = args.embedding_file
 
-    dataset = load_pickled_obj(tokenized_dataset)
+    dataset = pd.read_csv(args.dataset).fillna("")
     model = train_word2vec_model(dataset)
-    model.wv.save(embedding_file_name)
+    model.wv.save(args.embedding_file)

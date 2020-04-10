@@ -44,12 +44,9 @@ def train(model, data_iterator):
     for epoch in range(config.EPOCHS):
         running_loss = 0.0
         for i, (labels, features) in enumerate(data_iterator):
-            labels = torch.LongTensor(labels)
+            labels = torch.LongTensor(labels).to(config.DEVICE)
             labels -= 1
-            features = torch.LongTensor(features)
-
-            labels = labels.to(config.DEVICE)  # why?
-            features.to(config.DEVICE)
+            features = torch.LongTensor(features).to(config.DEVICE)
 
             optimizer.zero_grad()
             model.init_hidden_state()

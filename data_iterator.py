@@ -1,5 +1,9 @@
 import numpy as np
 from tqdm import tqdm
+from nltk.tokenize import sent_tokenize, word_tokenize
+
+import config
+from utils import tokenize_doc
 
 
 def grouper(iterable, n):
@@ -44,7 +48,7 @@ def max_words_per_sent(documents, perc=0.8):
 
 
 class DataIterator:
-    def __init__(self, dataset, vocab, batch_size=64):
+    def __init__(self, dataset, vocab, batch_size=config.BATCH_SIZE):
         self.dataset = dataset
         self.vocab = vocab
         self.batch_size = batch_size
@@ -61,12 +65,57 @@ class DataIterator:
             total=len(self.dataset),
             disable=True,
         ):
-            num_doc = self.batch_size
             documents = [doc for _, doc in batch]
             max_sent = max_sent_per_doc(documents)
             max_words = max_words_per_sent(documents)
             labels = np.int8([label for label, _ in batch])
-            data = np.zeros(shape=(num_doc, max_sent, max_words))
+            data = np.zeros(shape=(self.batch_size, max_sent, max_words))
+            for i, doc in enumerate(documents):
+                for j, sent in zip(range(max_sent), doc):
+                    for k, word in zip(range(max_words), sent):
+                        data[i, j, k] = self._word_to_index(word)
+            yield labels, data
+
+
+def sort_df_by_text_len(df):
+    """
+    Sort the input DataFrame by text length, in decreasing order.
+    """
+    index_sorted = df.text.str.len().sort_values(ascending=False).index
+    df_sorted = df.reindex(index_sorted)
+    return df_sorted.reset_index(drop=True)
+
+
+class LazyDataIterator(DataIterator):
+    """
+    Data iterator where each document is tokenized on the fly.
+
+    This can be useful when there's not enough RAM in the system.
+    The con is that it's much slower then the DataIterator, which
+    uses a pre-tokenized dataset.
+    """
+
+    def __init__(self, dataset, vocab, batch_size=config.BATCH_SIZE):
+        super(LazyDataIterator, self).__init__(
+            dataset=None, vocab=vocab, batch_size=batch_size
+        )
+        self.dataset = sort_df_by_text_len(dataset)
+
+    def __iter__(self):
+        for batch in tqdm(
+            grouper(self.dataset.itertuples(index=False), self.batch_size),
+            total=len(self.dataset),
+            disable=True,
+        ):
+            labels = []
+            documents = []
+            for label, doc in batch:
+                labels.append(label)
+                documents.append(tokenize_doc(doc))
+            max_sent = max_sent_per_doc(documents)
+            max_words = max_words_per_sent(documents)
+            labels = np.int8(labels)
+            data = np.zeros(shape=(self.batch_size, max_sent, max_words))
             for i, doc in enumerate(documents):
                 for j, sent in zip(range(max_sent), doc):
                     for k, word in zip(range(max_words), sent):

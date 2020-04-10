@@ -9,10 +9,6 @@ from tqdm import tqdm
 from utils import save_obj_as_pickle
 
 
-def preprocess_doc(doc):
-    return doc.lower().strip()
-
-
 def tokenize_dataset(dataset_file_name, output_file_name):
     df = pd.read_csv(dataset_file_name).fillna("")
     num_documents = df.shape[0]
