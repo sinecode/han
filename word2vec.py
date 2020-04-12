@@ -4,7 +4,7 @@ import pandas as pd
 from gensim.models import Word2Vec
 from tqdm import tqdm
 
-from utils import tokenize_doc, load_pickled_obj
+from utils import tokenize_doc
 
 
 class SentenceIterator:

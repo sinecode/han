@@ -82,10 +82,7 @@ class DataIterator:
                 for j, sent in zip(range(max_sent), doc):
                     for k, word in zip(range(max_words), sent):
                         data[i, j, k] = self._word_to_index(word)
-            yield (
-                torch.LongTensor(labels).to(config.DEVICE),
-                torch.LongTensor(data).to(config.DEVICE),
-            )
+            yield torch.LongTensor(labels), torch.LongTensor(data)
 
     def __len__(self):
         return len(self.df) // self.batch_size
