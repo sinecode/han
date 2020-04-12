@@ -1,6 +1,5 @@
+import torch
 import numpy as np
-from tqdm import tqdm
-from nltk.tokenize import sent_tokenize, word_tokenize
 
 import config
 from utils import tokenize_doc
@@ -47,9 +46,18 @@ def max_words_per_sent(documents, perc=0.8):
     return sorted(lengths)[int(perc * len(lengths)) - 1]
 
 
+def sort_df_by_text_len(df):
+    "Sort the input DataFrame by text length, in decreasing order"
+    index_sorted = df.text.str.len().sort_values(ascending=False).index
+    df_sorted = df.reindex(index_sorted)
+    return df_sorted.reset_index(drop=True)
+
+
 class DataIterator:
-    def __init__(self, dataset, vocab, batch_size=config.BATCH_SIZE):
-        self.dataset = dataset
+    "Data iterator where each document is tokenized on the fly"
+
+    def __init__(self, df, vocab, batch_size=config.BATCH_SIZE):
+        self.df = sort_df_by_text_len(df)
         self.vocab = vocab
         self.batch_size = batch_size
 
@@ -57,56 +65,10 @@ class DataIterator:
         try:
             return self.vocab[word].index
         except KeyError:
-            return self.vocab["UNK"].index
+            return self.vocab["UNK"].index  # OOV word
 
     def __iter__(self):
-        for batch in tqdm(
-            grouper(self.dataset, self.batch_size),
-            total=len(self.dataset),
-            disable=True,
-        ):
-            documents = [doc for _, doc in batch]
-            max_sent = max_sent_per_doc(documents)
-            max_words = max_words_per_sent(documents)
-            labels = np.int8([label for label, _ in batch])
-            data = np.zeros(shape=(self.batch_size, max_sent, max_words))
-            for i, doc in enumerate(documents):
-                for j, sent in zip(range(max_sent), doc):
-                    for k, word in zip(range(max_words), sent):
-                        data[i, j, k] = self._word_to_index(word)
-            yield labels, data
-
-
-def sort_df_by_text_len(df):
-    """
-    Sort the input DataFrame by text length, in decreasing order.
-    """
-    index_sorted = df.text.str.len().sort_values(ascending=False).index
-    df_sorted = df.reindex(index_sorted)
-    return df_sorted.reset_index(drop=True)
-
-
-class LazyDataIterator(DataIterator):
-    """
-    Data iterator where each document is tokenized on the fly.
-
-    This can be useful when there's not enough RAM in the system.
-    The con is that it's much slower then the DataIterator, which
-    uses a pre-tokenized dataset.
-    """
-
-    def __init__(self, dataset, vocab, batch_size=config.BATCH_SIZE):
-        super(LazyDataIterator, self).__init__(
-            dataset=None, vocab=vocab, batch_size=batch_size
-        )
-        self.dataset = sort_df_by_text_len(dataset)
-
-    def __iter__(self):
-        for batch in tqdm(
-            grouper(self.dataset.itertuples(index=False), self.batch_size),
-            total=len(self.dataset),
-            disable=True,
-        ):
+        for batch in grouper(self.df.itertuples(index=False), self.batch_size):
             labels = []
             documents = []
             for label, doc in batch:
@@ -120,7 +82,13 @@ class LazyDataIterator(DataIterator):
                 for j, sent in zip(range(max_sent), doc):
                     for k, word in zip(range(max_words), sent):
                         data[i, j, k] = self._word_to_index(word)
-            yield labels, data
+            yield (
+                torch.LongTensor(labels).to(config.DEVICE),
+                torch.LongTensor(data).to(config.DEVICE),
+            )
+
+    def __len__(self):
+        return len(self.df) // self.batch_size
 
 
 if __name__ == "__main__":
