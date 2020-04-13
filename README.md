@@ -6,13 +6,23 @@ The main goal of these experiments is to compare the performances of a Hierarchi
 
 ## Datasets
 
-I wasn't able to find the exactly datasets of the paper, so I have created three datasets from three cited sources: Yelp, Yahoo and Amazon. The datasets are perfectly balanced with all the classes.
+I wasn't able to find the exactly datasets of the paper, so I have created three datasets from three cited sources: Yelp, Yahoo and Amazon. The datasets are perfectly balanced in all the classes.
 
 |  **Dataset**  | **Classes** | **Documents** |
 |---------------|-------------|---------------|
 |     Yelp      |      5      |   1,569,000   |
 | Yahoo Answer  |      10     |   1,450,000   |
 | Amazon review |      5      |   3,650,000   |
+
+As reported in the paper, 80% of the data is used for training, 10% for validation and the remaining 10% for test.
+
+Here are more information about the dataset. #s denotes the number of sentences for each document and #w denotes the number of words for each sentence. This data are useful with the padding of the features.
+
+|  **Dataset**  | **Average #s** | **80th percentile #s** | **90th percentile #s** | **Max #s** | **Average #w** | **80th percentile #w** | **90th percentile #w** | **Max #w** |
+|---------------|----------------|------------------------|------------------------|------------|----------------|------------------------|------------------------|------------|
+|     Yelp      |      8.6       |           12           |           17           |    151     |      16.5      |          23            |        30              |     846    |
+| Yahoo Answer  |      5.5       |            8           |           11           |    154     |      19.7      |          28            |        37              |    3977    |
+| Amazon review |      7.0       |           10           |           16           |    660     |      19.3      |          28            |        35              |    1981    |
 
 ## Results
 
@@ -22,21 +32,7 @@ Document classification, in percentage
 |---------------|----------|-----------|------------|
 | **BoW**       |   61.3   |   66.9    |    52.2    |
 | **BoW-TFIDF** |   61.3   |   66.9    |    52.2    |
-
-## Notes
-
-The Yahoo answer categories are mapped as the following:
-
-* 0: *Business & Finance*
-* 1: *Computers & Internet*
-* 2: *Education & Reference*
-* 3: *Entertainment & Music*
-* 4: *Family & Relationships*
-* 5: *Health*
-* 6: *Politics & Government*
-* 7: *Science & Mathematics*
-* 8: *Society & Culture*
-* 9: *Sports*
+| **HAN**       |   ....   |   ....    |    ....    |
 
 ## References
 
