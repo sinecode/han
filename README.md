@@ -16,9 +16,9 @@ I wasn't able to find the exactly datasets of the paper, so I have created three
 
 As reported in the paper, 80% of the data is used for training, 10% for validation and the remaining 10% for test.
 
-Here are more information about the dataset. #s denotes the number of sentences for each document and #w denotes the number of words for each sentence. This data are useful with the padding of the features.
+Here are more information about the datasets. #s denotes the number of sentences for each document and #w denotes the number of words for each sentence. This data are useful with the padding of the features.
 
-|  **Dataset**  | **Average #s** | **80th percentile #s** | **90th percentile #s** | **Max #s** | **Average #w** | **80th percentile #w** | **90th percentile #w** | **Max #w** |
+|  **Dataset**  | **Average #s** | **80% #s** | **90% #s** | **Max #s** | **Average #w** | **80% #w** | **90% #w** | **Max #w** |
 |---------------|----------------|------------------------|------------------------|------------|----------------|------------------------|------------------------|------------|
 |     Yelp      |      8.6       |           12           |           17           |    151     |      16.5      |          23            |        30              |     846    |
 | Yahoo Answer  |      5.5       |            8           |           11           |    154     |      19.7      |          28            |        37              |    3977    |
