@@ -4,6 +4,8 @@ import time
 import torch
 import pandas as pd
 from gensim.models import KeyedVectors
+import matplotlib.pyplot as plt
+import matplotlib.ticker as mticker
 
 from data_iterator import DataIterator
 from han import Han
@@ -42,34 +44,44 @@ def main():
         lr=config.LEARNING_RATE,
         momentum=config.MOMENTUM,
     )
-    scheduler = torch.optim.lr_scheduler.StepLR(optimizer, 1, gamma=0.9)
+    train_losses = []
+    train_accs = []
+    val_losses = []
+    val_accs = []
 
+    start_time = time.time()
     for epoch in range(1, config.EPOCHS + 1):
-        start_time = time.time()
         train_loss, train_acc = train_func(
-            model, train_data_iterator, criterion, optimizer, scheduler
+            model, train_data_iterator, criterion, optimizer
         )
+        train_losses.append(train_loss)
+        train_accs.append(train_acc)
         val_loss, val_acc = test_func(model, val_data_iterator, criterion)
+        val_losses.append(val_loss)
+        val_accs.append(val_acc)
         secs = int(time.time() - start_time)
         mins = secs // 60
         secs = secs % 60
-        print(f"Epoch {epoch} | in {mins} minutes and {secs} seconds")
+        print(f"Epoch {epoch} | {mins}m {secs}s")
         print(
-            f"\tTrain loss: {train_loss:.4f}, Train acc: {train_acc * 100:.1f}%"
+            f"\tTrain loss: {train_loss:.3e}, Train acc: {train_acc * 100:.1f}%"
         )
-        print(f"\tVal loss: {val_loss:.4f}, Val acc: {val_acc * 100:.1f}%")
+        print(f"\tVal loss: {val_loss:.3e}, Val acc: {val_acc * 100:.1f}%")
         if epoch != config.EPOCHS:
             torch.save(model.state_dict(), f"{args.model_file}-{epoch}.pth")
+
+    plot_training(train_losses, train_accs, val_losses, val_accs)
+
     torch.save(model.state_dict(), f"{args.model_file}.pth")
     print("Hyperparameters:")
     print(f"\tEpochs: {config.EPOCHS}")
     print(f"\tBatch size: {config.BATCH_SIZE}")
     print(f"\tLearning rate: {config.LEARNING_RATE}")
     print(f"\tMomentum: {config.MOMENTUM}")
-    print(f"\tMax gradient: {config.MAX_GRAD}")
+    print(f"\tPercentage length: {config.PERC_LENGTH}")
 
 
-def train_func(model, data_iterator, criterion, optimizer, scheduler):
+def train_func(model, data_iterator, criterion, optimizer):
     "Train the model and return the training loss and accuracy"
     model.train()
     loss = 0.0
@@ -83,21 +95,39 @@ def train_func(model, data_iterator, criterion, optimizer, scheduler):
 
         outputs = model(features)
         loss = criterion(outputs, labels)
+        assert not torch.isnan(loss)
         loss.backward()
-        torch.nn.utils.clip_grad_norm_(
-            (p for p in model.parameters() if p.requires_grad), config.MAX_GRAD
-        )
         optimizer.step()
 
         loss += loss.item()
         acc += (outputs.argmax(1) == labels).sum().item()
 
-    # Adjust the learning rate
-    scheduler.step()
-
     total_it = len(data_iterator)
     total_samples = total_it * data_iterator.batch_size
-    return loss / total_it, acc / total_samples
+    return loss.item() / total_it, acc / total_samples
+
+
+def plot_training(train_losses, train_accs, val_losses, val_accs):
+    epochs = list(range(1, len(train_losses) + 1))
+    plt.figure(1)
+    plt.plot(epochs, train_losses)
+    plt.plot(epochs, val_losses)
+    plt.xlabel("Epochs")
+    plt.ylabel("Loss")
+    plt.xticks(epochs)
+    plt.gca().yaxis.set_major_formatter(mticker.FormatStrFormatter("%.2e"))
+    plt.legend(["Train", "Validation"])
+    plt.tight_layout()
+    plt.savefig("plots/loss.pdf")
+    plt.figure(2)
+    plt.plot(epochs, train_accs)
+    plt.plot(epochs, val_accs)
+    plt.xlabel("Epochs")
+    plt.ylabel("Accuracy")
+    plt.xticks(epochs)
+    plt.legend(["Train", "Validation"])
+    plt.tight_layout()
+    plt.savefig("plots/accuracy.pdf")
 
 
 if __name__ == "__main__":

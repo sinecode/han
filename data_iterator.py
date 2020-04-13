@@ -12,7 +12,7 @@ def grouper(iterable, n):
     return zip(*args)
 
 
-def max_sent_per_doc(documents, perc=0.8):
+def max_sent_per_doc(documents, perc=config.PERC_LENGTH):
     """Get the length of the longest document.
 
     The perc paramer is the percentage of documents that has length
@@ -21,7 +21,7 @@ def max_sent_per_doc(documents, perc=0.8):
     >>> docs = [["a", "b", "c"], ["d", "e"], ["f", "g"]]
     >>> max_sent_per_doc(docs, perc=1)
     3
-    >>> max_sent_per_doc(docs)
+    >>> max_sent_per_doc(docs, perc=0.8)
     2
     """
     assert 0 <= perc <= 1
@@ -29,7 +29,7 @@ def max_sent_per_doc(documents, perc=0.8):
     return sorted(lengths)[int(perc * len(lengths)) - 1]
 
 
-def max_words_per_sent(documents, perc=0.8):
+def max_words_per_sent(documents, perc=config.PERC_LENGTH):
     """Get the length of the longest sentences.
 
     The perc paramer is the percentage of sentences that has length
@@ -38,7 +38,7 @@ def max_words_per_sent(documents, perc=0.8):
     >>> docs = [[["a", "b", "c"], ["d", "e"]], [["f"]]]
     >>> max_words_per_sent(docs, perc=1)
     3
-    >>> max_words_per_sent(docs)
+    >>> max_words_per_sent(docs, perc=0.8)
     2
     """
     assert 0 <= perc <= 1

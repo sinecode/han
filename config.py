@@ -1,9 +1,9 @@
 # Hyperparameters
-EPOCHS = 2
+EPOCHS = 20
 BATCH_SIZE = 64
-LEARNING_RATE = 2
+LEARNING_RATE = 1
 MOMENTUM = 0.9
-MAX_GRAD = 1.0
+PERC_LENGTH = 0.9
 
 
 # Others

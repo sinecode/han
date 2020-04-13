@@ -54,7 +54,7 @@ def test_func(model, data_iterator, criterion):
             acc += (outputs.argmax(1) == labels).sum().item()
     total_it = len(data_iterator)
     total_samples = total_it * data_iterator.batch_size
-    return loss / total_it, acc / total_samples
+    return loss.item() / total_it, acc / total_samples
 
 
 if __name__ == "__main__":
