@@ -23,7 +23,7 @@ def main():
     args = parser.parse_args()
 
     wv = KeyedVectors.load(args.embedding_file)
-    num_classes = 10 if "yahoo" in args.train_dataset else 5  # TODO fix
+    num_classes = 10 if "yahoo" in args.test_dataset else 5  # TODO fix
     model = Han(embedding_matrix=wv.vectors, num_classes=num_classes).to(
         DEVICE
     )

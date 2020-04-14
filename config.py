@@ -1,12 +1,18 @@
 # Hyperparameters
-EPOCHS = 20
+EPOCHS = 10
 BATCH_SIZE = 64
 LEARNING_RATE = 1
 MOMENTUM = 0.9
 
 # Padding (Yelp)
-MAX_SENT = 12
-MAX_WORDS = 23
+# MAX_SENT = 12   # 80%
+# MAX_WORDS = 23  # 80%
+MAX_SENT = 17  # 90%
+MAX_WORDS = 30  # 90%
+
+# Padding (Yahoo)
+# MAX_SENT = 8
+# MAX_WORDS = 28
 
 # Others
 DEVICE = "cuda:0"

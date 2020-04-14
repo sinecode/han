@@ -1,5 +1,6 @@
 import argparse
 import time
+from collections import deque
 
 import torch
 from gensim.models import KeyedVectors
@@ -55,8 +56,9 @@ def main():
     val_losses = []
     val_accs = []
 
-    start_time = time.time()
+    total_start_time = time.time()
     for epoch in range(1, EPOCHS + 1):
+        start_time = time.time()
         train_loss, train_acc = train_func(
             model, train_data_loader, criterion, optimizer
         )
@@ -68,7 +70,12 @@ def main():
         secs = int(time.time() - start_time)
         mins = secs // 60
         secs = secs % 60
-        print(f"Epoch {epoch} | {mins}m {secs}s")
+        total_secs = int(time.time() - total_start_time)
+        total_mins = total_secs // 60
+        total_secs = total_secs % 60
+        print(
+            f"Epoch {epoch} | in {mins}m {secs}s, total {total_mins}m {total_secs}s"
+        )
         print(
             f"\tTrain loss: {train_loss:.3e}, Train acc: {train_acc * 100:.1f}%"
         )
@@ -77,7 +84,6 @@ def main():
             torch.save(model.state_dict(), f"{args.model_file}-{epoch}.pth")
 
     plot_training(train_losses, train_accs, val_losses, val_accs)
-
     torch.save(model.state_dict(), f"{args.model_file}.pth")
     print("Hyperparameters:")
     print(f"\tEpochs: {EPOCHS}")
@@ -86,11 +92,14 @@ def main():
     print(f"\tMomentum: {MOMENTUM}")
 
 
-def train_func(model, data_loader, criterion, optimizer):
-    "Train the model and return the training loss and accuracy"
+def train_func(model, data_loader, criterion, optimizer, last_val=20):
+    """
+    Train the model and return the training loss and accuracy
+    of the `last_val` batches.
+    """
     model.train()
-    loss = 0.0
-    acc = 0.0
+    losses = deque(maxlen=last_val)
+    accs = deque(maxlen=last_val)
     for labels, features in data_loader:
         labels = labels.to(DEVICE)
         features = features.to(DEVICE)
@@ -104,12 +113,10 @@ def train_func(model, data_loader, criterion, optimizer):
         loss.backward()
         optimizer.step()
 
-        loss += loss.item()
-        acc += (outputs.argmax(1) == labels).sum().item()
+        losses.append(loss.item())
+        accs.append((outputs.argmax(1) == labels).sum().item() / len(labels))
 
-    total_it = len(data_loader)
-    total_samples = total_it * data_loader.batch_size
-    return loss.item() / total_it, acc / total_samples
+    return sum(losses) / len(losses), sum(accs) / len(accs)
 
 
 def plot_training(train_losses, train_accs, val_losses, val_accs):
@@ -130,6 +137,7 @@ def plot_training(train_losses, train_accs, val_losses, val_accs):
     plt.xlabel("Epochs")
     plt.ylabel("Accuracy")
     plt.xticks(epochs)
+    plt.gca().yaxis.set_major_formatter(mticker.FormatStrFormatter("%.2f"))
     plt.legend(["Train", "Validation"])
     plt.tight_layout()
     plt.savefig("plots/accuracy.pdf")
