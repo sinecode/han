@@ -91,5 +91,7 @@ class Han(torch.nn.Module):
             output, self.sent_hidden_state
         )
         output = self.sent_attention(output)
-        output = torch.nn.functional.softmax(self.last_layer(output), dim=0)
+        output = torch.nn.functional.log_softmax(
+            self.last_layer(output), dim=0
+        )
         return output

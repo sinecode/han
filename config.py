@@ -5,10 +5,10 @@ LEARNING_RATE = 1
 MOMENTUM = 0.9
 
 # Padding (Yelp)
-# MAX_SENT = 12   # 80%
-# MAX_WORDS = 23  # 80%
-MAX_SENT = 17  # 90%
-MAX_WORDS = 30  # 90%
+MAX_SENT = 12  # 80%
+MAX_WORDS = 23  # 80%
+# MAX_SENT = 17  # 90%
+# MAX_WORDS = 30  # 90%
 
 # Padding (Yahoo)
 # MAX_SENT = 8
