@@ -1,6 +1,6 @@
 # Hyperparameters
-EPOCHS = 1
-BATCH_SIZE = 64
+EPOCHS = 3
+BATCH_SIZE = 5
 LEARNING_RATE = 1
 MOMENTUM = 0.9
 

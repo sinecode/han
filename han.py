@@ -38,7 +38,7 @@ class Han(torch.nn.Module):
         self,
         embedding_matrix,
         num_classes,
-        batch_size=64,
+        batch_size=config.BATCH_SIZE,
         word_hidden_size=50,
         sent_hidden_size=50,
     ):

@@ -84,10 +84,15 @@ def main():
             f"\tTrain loss: {train_loss:.3e}, Train acc: {train_acc * 100:.1f}%"
         )
         print(f"\tVal loss: {val_loss:.3e}, Val acc: {val_acc * 100:.1f}%")
+
+        writer.add_scalar("Train/Loss", train_loss, epoch)
+        writer.add_scalar("Train/Accuracy", train_acc, epoch)
+        writer.add_scalar("Validation/Loss", val_loss, epoch)
+        writer.add_scalar("Validation/Accuracy", val_acc, epoch)
         if epoch != EPOCHS:
             torch.save(model.state_dict(), f"{args.model_file}-{epoch}.pth")
 
-    plot_training(train_losses, train_accs, val_losses, val_accs)
+    #plot_training(train_losses, train_accs, val_losses, val_accs)
     torch.save(model.state_dict(), f"{args.model_file}.pth")
     print("Hyperparameters:")
     print(f"\tEpochs: {EPOCHS}")
@@ -125,13 +130,14 @@ def train_func(model, data_loader, criterion, optimizer, writer, last_val=20):
                 model.state_dict(), model.parameters()
             ):
                 if param_value.requires_grad:
+                    param_name = param_name.replace(".", "/")
                     writer.add_histogram(
-                        "encoder/" + param_name.replace(".", "/"),
+                        param_name,
                         param_value,
                         iteration,
                     )
                     writer.add_histogram(
-                        "encoder/" + param_name.replace(".", "/") + "/grad",
+                        param_name + "/grad",
                         param_value.grad,
                         iteration,
                     )
