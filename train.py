@@ -3,9 +3,11 @@ import time
 from collections import deque
 
 import torch
+from tensorboardX import SummaryWriter
 from gensim.models import KeyedVectors
 import matplotlib.pyplot as plt
 import matplotlib.ticker as mticker
+from tqdm import tqdm
 
 from dataset import MyDataset
 from han import Han
@@ -36,6 +38,8 @@ def main():
         DEVICE
     )
 
+    writer = SummaryWriter("log_dir")
+
     train_dataset = MyDataset(args.train_dataset, wv.vocab)
     train_data_loader = torch.utils.data.DataLoader(
         train_dataset, batch_size=BATCH_SIZE, shuffle=True, drop_last=True
@@ -60,7 +64,7 @@ def main():
     for epoch in range(1, EPOCHS + 1):
         start_time = time.time()
         train_loss, train_acc = train_func(
-            model, train_data_loader, criterion, optimizer
+            model, train_data_loader, criterion, optimizer, writer
         )
         train_losses.append(train_loss)
         train_accs.append(train_acc)
@@ -92,7 +96,7 @@ def main():
     print(f"\tMomentum: {MOMENTUM}")
 
 
-def train_func(model, data_loader, criterion, optimizer, last_val=20):
+def train_func(model, data_loader, criterion, optimizer, writer, last_val=20):
     """
     Train the model and return the training loss and accuracy
     of the `last_val` batches.
@@ -100,7 +104,7 @@ def train_func(model, data_loader, criterion, optimizer, last_val=20):
     model.train()
     losses = deque(maxlen=last_val)
     accs = deque(maxlen=last_val)
-    for labels, features in data_loader:
+    for iteration, (labels, features) in enumerate(tqdm(data_loader)):
         labels = labels.to(DEVICE)
         features = features.to(DEVICE)
 
@@ -116,6 +120,21 @@ def train_func(model, data_loader, criterion, optimizer, last_val=20):
         losses.append(loss.item())
         accs.append((outputs.argmax(1) == labels).sum().item() / len(labels))
 
+        if iteration % 10 == 9:
+            for param_name, param_value in zip(
+                model.state_dict(), model.parameters()
+            ):
+                if param_value.requires_grad:
+                    writer.add_histogram(
+                        "encoder/" + param_name.replace(".", "/"),
+                        param_value,
+                        iteration,
+                    )
+                    writer.add_histogram(
+                        "encoder/" + param_name.replace(".", "/") + "/grad",
+                        param_value.grad,
+                        iteration,
+                    )
     return sum(losses) / len(losses), sum(accs) / len(accs)
 
 

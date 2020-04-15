@@ -2,6 +2,7 @@ import argparse
 
 import torch
 from gensim.models import KeyedVectors
+from tqdm import tqdm
 
 from dataset import MyDataset
 from han import Han
@@ -44,7 +45,7 @@ def test_func(model, data_loader, criterion):
     loss = 0.0
     acc = 0.0
     with torch.no_grad():
-        for labels, features in data_loader:
+        for labels, features in tqdm(data_loader):
             labels = labels.to(DEVICE)
             features = features.to(DEVICE)
 
