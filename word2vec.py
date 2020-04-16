@@ -42,8 +42,6 @@ if __name__ == "__main__":
     )
 
     args = parser.parse_args()
-    tokenized_dataset = args.dataset
-    embedding_file_name = args.embedding_file
 
     dataset = pd.read_csv(args.dataset).fillna("")
     model = train_word2vec_model(dataset)

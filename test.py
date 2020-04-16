@@ -45,7 +45,9 @@ def test_func(model, data_loader, criterion):
     losses = []
     accs = []
     with torch.no_grad():
-        for labels, features in tqdm(data_loader, disable=(not TQDM)):
+        for labels, features in tqdm(
+            data_loader, total=len(data_loader), disable=(not TQDM)
+        ):
             labels = labels.to(DEVICE)
             features = features.to(DEVICE)
 

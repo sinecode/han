@@ -35,9 +35,12 @@ def main():
 
     wv = KeyedVectors.load(args.embedding_file)
     num_classes = 10 if "yahoo" in args.train_dataset else 5  # TODO fix
-    model = Han(embedding_matrix=wv.vectors, num_classes=num_classes).to(
-        DEVICE
-    )
+    model = Han(
+        embedding_matrix=wv.vectors,
+        num_classes=num_classes,
+        word_hidden_size=50,
+        sent_hidden_size=50,
+    ).to(DEVICE)
 
     writer = SummaryWriter(f"tensorboard/{datetime.now()}")
 
@@ -111,7 +114,7 @@ def train_func(model, data_loader, criterion, optimizer, writer, last_val=20):
     losses = deque(maxlen=last_val)
     accs = deque(maxlen=last_val)
     for iteration, (labels, features) in tqdm(
-        enumerate(data_loader), disable=(not TQDM)
+        enumerate(data_loader), total=len(data_loader), disable=(not TQDM)
     ):
         labels = labels.to(DEVICE)
         features = features.to(DEVICE)
