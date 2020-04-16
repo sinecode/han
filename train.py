@@ -1,5 +1,6 @@
 import argparse
 import time
+from datetime import datetime
 from collections import deque
 
 import torch
@@ -12,7 +13,7 @@ from tqdm import tqdm
 from dataset import MyDataset
 from han import Han
 from test import test_func
-from config import BATCH_SIZE, EPOCHS, LEARNING_RATE, MOMENTUM, DEVICE
+from config import BATCH_SIZE, EPOCHS, LEARNING_RATE, MOMENTUM, DEVICE, TQDM
 
 
 def main():
@@ -38,15 +39,15 @@ def main():
         DEVICE
     )
 
-    writer = SummaryWriter("log_dir")
+    writer = SummaryWriter(f"tensorboard/{datetime.now()}")
 
     train_dataset = MyDataset(args.train_dataset, wv.vocab)
     train_data_loader = torch.utils.data.DataLoader(
-        train_dataset, batch_size=BATCH_SIZE, shuffle=True, drop_last=True
+        train_dataset, batch_size=BATCH_SIZE, shuffle=True
     )
     val_dataset = MyDataset(args.val_dataset, wv.vocab)
     val_data_loader = torch.utils.data.DataLoader(
-        val_dataset, batch_size=BATCH_SIZE, shuffle=True, drop_last=True
+        val_dataset, batch_size=BATCH_SIZE, shuffle=True
     )
 
     criterion = torch.nn.NLLLoss().to(DEVICE)
@@ -92,7 +93,7 @@ def main():
         if epoch != EPOCHS:
             torch.save(model.state_dict(), f"{args.model_file}-{epoch}.pth")
 
-    #plot_training(train_losses, train_accs, val_losses, val_accs)
+    # plot_training(train_losses, train_accs, val_losses, val_accs)
     torch.save(model.state_dict(), f"{args.model_file}.pth")
     print("Hyperparameters:")
     print(f"\tEpochs: {EPOCHS}")
@@ -109,38 +110,40 @@ def train_func(model, data_loader, criterion, optimizer, writer, last_val=20):
     model.train()
     losses = deque(maxlen=last_val)
     accs = deque(maxlen=last_val)
-    for iteration, (labels, features) in enumerate(tqdm(data_loader)):
+    for iteration, (labels, features) in tqdm(
+        enumerate(data_loader), disable=(not TQDM)
+    ):
         labels = labels.to(DEVICE)
         features = features.to(DEVICE)
 
-        optimizer.zero_grad()
-        model.init_hidden_state()
+        batch_size = len(labels)
 
-        outputs = model(features)
-        loss = criterion(outputs, labels)
+        optimizer.zero_grad()
+        model.init_hidden_state(batch_size)
+
+        predictions = model(features)
+        loss = criterion(predictions, labels)
         assert not torch.isnan(loss)
         loss.backward()
         optimizer.step()
 
         losses.append(loss.item())
-        accs.append((outputs.argmax(1) == labels).sum().item() / len(labels))
+        accs.append(
+            (predictions.argmax(1) == labels).sum().item() / batch_size
+        )
 
-        if iteration % 10 == 9:
+        if iteration % 1 == 0:
             for param_name, param_value in zip(
                 model.state_dict(), model.parameters()
             ):
                 if param_value.requires_grad:
                     param_name = param_name.replace(".", "/")
                     writer.add_histogram(
-                        param_name,
-                        param_value,
-                        iteration,
+                        param_name, param_value, iteration,
                     )
-                    writer.add_histogram(
-                        param_name + "/grad",
-                        param_value.grad,
-                        iteration,
-                    )
+                    # writer.add_histogram(
+                    #    param_name + "/grad", param_value.grad, iteration,
+                    # )
     return sum(losses) / len(losses), sum(accs) / len(accs)
 
 

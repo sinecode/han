@@ -6,7 +6,7 @@ from tqdm import tqdm
 
 from dataset import MyDataset
 from han import Han
-from config import BATCH_SIZE, DEVICE
+from config import BATCH_SIZE, DEVICE, TQDM
 
 
 def main():
@@ -42,23 +42,25 @@ def main():
 def test_func(model, data_loader, criterion):
     "Return the loss and the accuracy of the model on the input dataset"
     model.eval()
-    loss = 0.0
-    acc = 0.0
+    losses = []
+    accs = []
     with torch.no_grad():
-        for labels, features in tqdm(data_loader):
+        for labels, features in tqdm(data_loader, disable=(not TQDM)):
             labels = labels.to(DEVICE)
             features = features.to(DEVICE)
 
-            model.init_hidden_state()
+            batch_size = len(labels)
+
+            model.init_hidden_state(batch_size)
 
             outputs = model(features)
             loss = criterion(outputs, labels)
 
-            loss += loss.item()
-            acc += (outputs.argmax(1) == labels).sum().item()
-    total_it = len(data_loader)
-    total_samples = total_it * data_loader.batch_size
-    return loss.item() / total_it, acc / total_samples
+            losses.append(loss.item())
+            accs.append(
+                (outputs.argmax(1) == labels).sum().item() / batch_size
+            )
+    return sum(losses) / len(losses), sum(accs) / len(accs)
 
 
 if __name__ == "__main__":

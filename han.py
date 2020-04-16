@@ -1,6 +1,6 @@
 import torch
 
-import config
+from config import DEVICE, BATCH_SIZE
 
 
 class Encoder(torch.nn.Module):
@@ -25,7 +25,7 @@ class Attention(torch.nn.Module):
     def forward(self, input):
         output = torch.tanh(self.linear(input))
         output = torch.matmul(output, self.context_vector).squeeze(dim=-1)
-        output = torch.nn.functional.softmax(output, dim=-1)
+        output = torch.nn.functional.softmax(output, dim=0)
         outs = []
         for alpha, h in zip(output, input):
             alpha = alpha.unsqueeze(1).expand_as(h)
@@ -38,7 +38,6 @@ class Han(torch.nn.Module):
         self,
         embedding_matrix,
         num_classes,
-        batch_size=config.BATCH_SIZE,
         word_hidden_size=50,
         sent_hidden_size=50,
     ):
@@ -47,10 +46,9 @@ class Han(torch.nn.Module):
         self.embedding = torch.nn.Embedding.from_pretrained(
             embeddings=torch.FloatTensor(embedding_matrix), freeze=True,
         )
-        self.batch_size = batch_size
         self.word_hidden_size = word_hidden_size
         self.sent_hidden_size = sent_hidden_size
-        self.init_hidden_state()
+        self.init_hidden_state(BATCH_SIZE)
         self.word_encoder = Encoder(embedding_dim, word_hidden_size)
         self.word_attention = Attention(input_size=word_hidden_size * 2)
         self.sent_encoder = Encoder(word_hidden_size * 2, sent_hidden_size)
@@ -59,13 +57,13 @@ class Han(torch.nn.Module):
             in_features=sent_hidden_size * 2, out_features=num_classes
         )
 
-    def init_hidden_state(self):
+    def init_hidden_state(self, batch_size):
         self.word_hidden_state = torch.zeros(
-            2, self.batch_size, self.word_hidden_size
-        ).to(config.DEVICE)
+            2, batch_size, self.word_hidden_size
+        ).to(DEVICE)
         self.sent_hidden_state = torch.zeros(
-            2, self.batch_size, self.sent_hidden_size
-        ).to(config.DEVICE)
+            2, batch_size, self.sent_hidden_size
+        ).to(DEVICE)
 
     def forward(self, input):
         output_list = []
@@ -79,7 +77,7 @@ class Han(torch.nn.Module):
         # etc...
         for i in input:
             # reshape as [num_words_per_doc, batch_size]
-            i = i.permute(1, 0).to(config.DEVICE)
+            i = i.permute(1, 0).to(DEVICE)
             output = self.embedding(i)
             output, self.word_hidden_state = self.word_encoder(
                 output.float(), self.word_hidden_state
@@ -91,7 +89,6 @@ class Han(torch.nn.Module):
             output, self.sent_hidden_state
         )
         output = self.sent_attention(output)
-        output = torch.nn.functional.log_softmax(
-            self.last_layer(output), dim=0
-        )
+        output = self.last_layer(output)
+        output = torch.nn.functional.log_softmax(output, dim=1)
         return output
