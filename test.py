@@ -2,56 +2,65 @@ import argparse
 
 import torch
 from gensim.models import KeyedVectors
+from tqdm import tqdm
 
-from data_iterator import DataIterator
+from dataset import MyDataset
 from han import Han
-from utils import load_pickled_obj
-import config
+from config import BATCH_SIZE, DEVICE, TQDM
 
 
 def main():
     parser = argparse.ArgumentParser(description="Test the HAN model")
     parser.add_argument(
-        "tokenized_dataset",
-        help="Pickle file where is stored the tokenized text",
+        "test_dataset", help="CSV file where is stored the test dataset",
     )
     parser.add_argument(
         "embedding_file", help="File name where is stored the word2vec model",
     )
     parser.add_argument(
-        "model_file", help="File name where is stored the tested model",
+        "model_file", help="File name where is stored the trained model",
     )
 
     args = parser.parse_args()
 
-    dataset = load_pickled_obj(args.tokenized_dataset)
     wv = KeyedVectors.load(args.embedding_file)
-    model_file = args.model_file
-    model = Han(embedding_matrix=wv.vectors, num_classes=5)
-    data_iterator = DataIterator(dataset, wv.vocab)
-    test(model, data_iterator)
+    num_classes = 10 if "yahoo" in args.test_dataset else 5  # TODO fix
+    model = Han(embedding_matrix=wv.vectors, num_classes=num_classes).to(
+        DEVICE
+    )
+    model.load_state_dict(torch.load(args.model_file))
+
+    test_dataset = MyDataset(args.test_dataset, wv.vocab)
+    test_data_loader = torch.utils.data.DataLoader(
+        test_dataset, batch_size=BATCH_SIZE, shuffle=True, drop_last=True
+    )
+    criterion = torch.nn.NLLLoss().to(DEVICE)
+    loss, acc = test_func(model, test_data_loader, criterion)
+    print(f"Loss: {loss:.4f}, Accuracy {acc * 100:.1f}%")
 
 
-def test(model, data_iterator):
-    model.to(config.DEVICE)
-    correct = 0
-    total = 0
+def test_func(model, data_loader, criterion):
+    "Return the loss and the accuracy of the model on the input dataset"
+    model.eval()
+    losses = []
+    accs = []
     with torch.no_grad():
-        for i, (labels, features) in enumerate(data_iterator):
-            labels = torch.LongTensor(labels)
-            labels -= 1
-            features = torch.LongTensor(features)
+        for labels, features in tqdm(data_loader, disable=(not TQDM)):
+            labels = labels.to(DEVICE)
+            features = features.to(DEVICE)
 
-            labels = labels.to(config.DEVICE)  # why?
-            features.to(config.DEVICE)
+            batch_size = len(labels)
 
-            model.init_hidden_state()
+            model.init_hidden_state(batch_size)
 
             outputs = model(features)
-            _, predicted = torch.max(outputs.data, 1)
-            total += labels.size(0)
-            correct += (predicted == labels).sum().item()
-    print(f"Accuracy: {100 * correct / total}")
+            loss = criterion(outputs, labels)
+
+            losses.append(loss.item())
+            accs.append(
+                (outputs.argmax(1) == labels).sum().item() / batch_size
+            )
+    return sum(losses) / len(losses), sum(accs) / len(accs)
 
 
 if __name__ == "__main__":
