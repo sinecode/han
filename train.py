@@ -6,8 +6,7 @@ from collections import deque
 import torch
 from tensorboardX import SummaryWriter
 from gensim.models import KeyedVectors
-import matplotlib.pyplot as plt
-import matplotlib.ticker as mticker
+import pandas as pd
 from tqdm import tqdm
 
 from dataset import MyDataset
@@ -34,7 +33,27 @@ def main():
     args = parser.parse_args()
 
     wv = KeyedVectors.load(args.embedding_file)
-    num_classes = 10 if "yahoo" in args.train_dataset else 5  # TODO fix
+
+    train_df = pd.read_csv(args.train_dataset).fillna("")
+    train_documents = train_df.text
+    train_labels = train_df.label
+    num_classes = len(train_labels.unique())
+
+    train_dataset = MyDataset(train_documents, train_labels, wv.vocab)
+    train_data_loader = torch.utils.data.DataLoader(
+        train_dataset, batch_size=BATCH_SIZE, shuffle=True
+    )
+
+    val_df = pd.read_csv(args.val_dataset).fillna("")
+    val_documents = val_df.text
+    val_labels = val_df.label
+    val_dataset = MyDataset(val_documents, val_labels, wv.vocab)
+    val_data_loader = torch.utils.data.DataLoader(
+        val_dataset, batch_size=BATCH_SIZE, shuffle=True
+    )
+
+    writer = SummaryWriter(f"tensorboard/{datetime.now()}")
+
     model = Han(
         embedding_matrix=wv.vectors,
         num_classes=num_classes,
@@ -42,28 +61,17 @@ def main():
         sent_hidden_size=50,
     ).to(DEVICE)
 
-    writer = SummaryWriter(f"tensorboard/{datetime.now()}")
-
-    train_dataset = MyDataset(args.train_dataset, wv.vocab)
-    train_data_loader = torch.utils.data.DataLoader(
-        train_dataset, batch_size=BATCH_SIZE, shuffle=True
-    )
-    val_dataset = MyDataset(args.val_dataset, wv.vocab)
-    val_data_loader = torch.utils.data.DataLoader(
-        val_dataset, batch_size=BATCH_SIZE, shuffle=True
-    )
-
     criterion = torch.nn.NLLLoss().to(DEVICE)
     optimizer = torch.optim.SGD(
         (p for p in model.parameters() if p.requires_grad),
         lr=LEARNING_RATE,
         momentum=MOMENTUM,
     )
+
     train_losses = []
     train_accs = []
     val_losses = []
     val_accs = []
-
     total_start_time = time.time()
     for epoch in range(1, EPOCHS + 1):
         start_time = time.time()
@@ -148,30 +156,6 @@ def train_func(model, data_loader, criterion, optimizer, writer, last_val=20):
                     #    param_name + "/grad", param_value.grad, iteration,
                     # )
     return sum(losses) / len(losses), sum(accs) / len(accs)
-
-
-def plot_training(train_losses, train_accs, val_losses, val_accs):
-    epochs = list(range(1, len(train_losses) + 1))
-    plt.figure(1)
-    plt.plot(epochs, train_losses)
-    plt.plot(epochs, val_losses)
-    plt.xlabel("Epochs")
-    plt.ylabel("Loss")
-    plt.xticks(epochs)
-    plt.gca().yaxis.set_major_formatter(mticker.FormatStrFormatter("%.2e"))
-    plt.legend(["Train", "Validation"])
-    plt.tight_layout()
-    plt.savefig("plots/loss.pdf")
-    plt.figure(2)
-    plt.plot(epochs, train_accs)
-    plt.plot(epochs, val_accs)
-    plt.xlabel("Epochs")
-    plt.ylabel("Accuracy")
-    plt.xticks(epochs)
-    plt.gca().yaxis.set_major_formatter(mticker.FormatStrFormatter("%.2f"))
-    plt.legend(["Train", "Validation"])
-    plt.tight_layout()
-    plt.savefig("plots/accuracy.pdf")
 
 
 if __name__ == "__main__":

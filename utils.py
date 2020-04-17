@@ -14,7 +14,7 @@ def tokenize_doc(doc: str) -> List[List[str]]:
     >>> tokenize_doc("Hello There! General Kenobi!")
     [['hello', 'there', '!'], ['general', 'kenobi', '!']]
     """
-    doc = doc.lower().strip()
+    doc = doc.lower()
     return [word_tokenize(sentence) for sentence in sent_tokenize(doc)]
 
 
