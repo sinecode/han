@@ -5,9 +5,8 @@ import torch.nn.functional as F
 from config import DEVICE, BATCH_SIZE
 
 
-class WordAttention(nn.Module):
+class WordEncoder(nn.Module):
     def __init__(self, embedding_matrix, hidden_size):
-        super(WordAttention, self).__init__()
         embedding_dim = embedding_matrix.shape[1]
         self.embedding = nn.Embedding.from_pretrained(
             embeddings=torch.FloatTensor(embedding_matrix), freeze=True,
@@ -17,6 +16,16 @@ class WordAttention(nn.Module):
             hidden_size=hidden_size,
             bidirectional=True,
         )
+
+    def forward(self, input, hidden_state):
+        output = self.embedding(input)
+        f_output, h_output = self.gru(output, hidden_state)
+        return f_output, h_output
+
+
+class WordAttention(nn.Module):
+    def __init__(self, embedding_matrix, hidden_size):
+        super(WordAttention, self).__init__()
         word_vector_size = hidden_size * 2
         self.fc = nn.Linear(
             in_features=word_vector_size, out_features=word_vector_size

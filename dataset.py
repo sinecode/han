@@ -1,7 +1,7 @@
 import numpy as np
 import torch
 
-from config import MAX_SENT, MAX_WORDS
+from config import SENT_PER_DOC, WORDS_PER_SENT
 from utils import tokenize_doc
 
 
@@ -31,8 +31,10 @@ class SentWordDataset(torch.utils.data.Dataset):
     def __getitem__(self, index):
         label = self.labels[index]
         doc = self.documents[index]
-        features = np.zeros(shape=(MAX_SENT, MAX_WORDS), dtype=np.int64)
-        for i, sent in zip(range(MAX_SENT), tokenize_doc(doc)):
-            for j, word in zip(range(MAX_WORDS), sent):
+        features = np.zeros(
+            shape=(SENT_PER_DOC, WORDS_PER_SENT), dtype=np.int64
+        )
+        for i, sent in zip(range(SENT_PER_DOC), tokenize_doc(doc)):
+            for j, word in zip(range(WORDS_PER_SENT), sent):
                 features[i, j] = self._word_to_index(word)
         return label, features
