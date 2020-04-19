@@ -4,6 +4,7 @@ import pandas as pd
 from gensim.models import Word2Vec
 from tqdm import tqdm
 
+from config import TQDM, EMBEDDING_SIZE
 from utils import tokenize_doc
 
 
@@ -13,14 +14,16 @@ class SentenceIterator:
 
     def __iter__(self):
         for _, doc in tqdm(
-            self.dataset.itertuples(index=False), total=len(self.dataset)
+            self.dataset.itertuples(index=False),
+            total=len(self.dataset),
+            disable=(not TQDM),
         ):
             tokenized_doc = tokenize_doc(doc)
             for sentence in tokenized_doc:
                 yield sentence
 
 
-def train_word2vec_model(dataset, min_count=5, dim_embedding=200):
+def train_word2vec_model(dataset, dim_embedding, min_count=5):
     model = Word2Vec(min_count=min_count, size=dim_embedding)
     model.build_vocab([["PAD"] * min_count])  # add PAD word
     model.build_vocab([["UNK"] * min_count], update=True)  # add OOV word
@@ -44,5 +47,5 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     dataset = pd.read_csv(args.dataset).fillna("")
-    model = train_word2vec_model(dataset)
+    model = train_word2vec_model(dataset, EMBEDDING_SIZE)
     model.wv.save(args.embedding_file)
