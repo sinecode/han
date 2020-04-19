@@ -1,7 +1,7 @@
 # Hyperparameters
-EPOCHS = 50
+EPOCHS = 10
 BATCH_SIZE = 64
-LEARNING_RATE = 1
+LEARNING_RATE = 0.01
 MOMENTUM = 0.9
 EMBEDDING_SIZE = 200
 BIDIRECTIONAL = 2  # set to 1 (not bidirectional) or 2 (bidirectional)
@@ -23,6 +23,6 @@ WORDS_PER_DOC = 208  # 80%
 # WORDS_PER_DOC = 1234  # 100%
 
 # Others
-# DEVICE = "cuda:0"
-DEVICE = "cpu"
-TQDM = False
+DEVICE = "cuda:0"
+# DEVICE = "cpu"
+TQDM = True

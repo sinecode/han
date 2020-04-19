@@ -1,6 +1,7 @@
 import argparse
 import time
 from datetime import datetime
+from pathlib import Path
 from collections import deque
 
 import torch
@@ -61,7 +62,11 @@ def main():
         val_dataset, batch_size=BATCH_SIZE, shuffle=True
     )
 
-    writer = SummaryWriter(f"tensorboard/{datetime.now()}")
+    logdir = Path(f"runs/wan/{args.model_file.split('/')[-1]}")
+    logdir.mkdir(parents=True, exist_ok=True)
+    writer = SummaryWriter(
+        str(logdir / datetime.now().strftime("%Y%m%d-%H%M%S"))
+    )
 
     model = Wan(
         embedding_matrix=wv.vectors,
@@ -109,23 +114,24 @@ def main():
             f"Epoch {epoch} | in {mins}m {secs}s, total {total_mins}m {total_secs}s"
         )
         print(
-            f"\tTrain loss: {train_loss:.3e}, Train acc: {train_acc * 100:.1f}%"
+            f"\tTrain loss: {train_loss:.4}, Train acc: {train_acc * 100:.1f}%"
         )
-        print(f"\tVal loss: {val_loss:.3e}, Val acc: {val_acc * 100:.1f}%")
+        print(f"\tVal loss: {val_loss:.4}, Val acc: {val_acc * 100:.1f}%")
 
         writer.add_scalar("Train/Loss", train_loss, epoch)
         writer.add_scalar("Train/Accuracy", train_acc, epoch)
         writer.add_scalar("Validation/Loss", val_loss, epoch)
         writer.add_scalar("Validation/Accuracy", val_acc, epoch)
-        if epoch != EPOCHS:
-            torch.save(model.state_dict(), f"{args.model_file}-{epoch}.pth")
+
+    writer.add_text(
+        "Hyperparameters",
+        f"Batch size = {BATCH_SIZE}; "
+        f"Learning rate = {LEARNING_RATE}; "
+        f"Momentum = {MOMENTUM}",
+    )
+    writer.close()
 
     torch.save(model.state_dict(), f"{args.model_file}.pth")
-    print("Hyperparameters:")
-    print(f"\tEpochs: {EPOCHS}")
-    print(f"\tBatch size: {BATCH_SIZE}")
-    print(f"\tLearning rate: {LEARNING_RATE}")
-    print(f"\tMomentum: {MOMENTUM}")
 
 
 def train_func(model, data_loader, criterion, optimizer, writer, last_val=20):
