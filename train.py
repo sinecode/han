@@ -9,10 +9,19 @@ from gensim.models import KeyedVectors
 import pandas as pd
 from tqdm import tqdm
 
-from dataset import MyDataset
+from dataset import SentWordDataset
 from han import Han
 from test import test_func
-from config import BATCH_SIZE, EPOCHS, LEARNING_RATE, MOMENTUM, DEVICE, TQDM
+from config import (
+    BATCH_SIZE,
+    EPOCHS,
+    LEARNING_RATE,
+    MOMENTUM,
+    DEVICE,
+    TQDM,
+    WORD_HIDDEN_SIZE,
+    SENT_HIDDEN_SIZE,
+)
 
 
 def main():
@@ -37,9 +46,7 @@ def main():
     train_df = pd.read_csv(args.train_dataset).fillna("")
     train_documents = train_df.text
     train_labels = train_df.label
-    num_classes = len(train_labels.unique())
-
-    train_dataset = MyDataset(train_documents, train_labels, wv.vocab)
+    train_dataset = SentWordDataset(train_documents, train_labels, wv.vocab)
     train_data_loader = torch.utils.data.DataLoader(
         train_dataset, batch_size=BATCH_SIZE, shuffle=True
     )
@@ -47,7 +54,7 @@ def main():
     val_df = pd.read_csv(args.val_dataset).fillna("")
     val_documents = val_df.text
     val_labels = val_df.label
-    val_dataset = MyDataset(val_documents, val_labels, wv.vocab)
+    val_dataset = SentWordDataset(val_documents, val_labels, wv.vocab)
     val_data_loader = torch.utils.data.DataLoader(
         val_dataset, batch_size=BATCH_SIZE, shuffle=True
     )
@@ -56,9 +63,10 @@ def main():
 
     model = Han(
         embedding_matrix=wv.vectors,
-        num_classes=num_classes,
-        word_hidden_size=50,
-        sent_hidden_size=50,
+        word_hidden_size=WORD_HIDDEN_SIZE,
+        sent_hidden_size=SENT_HIDDEN_SIZE,
+        num_classes=len(train_labels.unique()),
+        batch_size=BATCH_SIZE,
     ).to(DEVICE)
 
     criterion = torch.nn.NLLLoss().to(DEVICE)
@@ -104,7 +112,6 @@ def main():
         if epoch != EPOCHS:
             torch.save(model.state_dict(), f"{args.model_file}-{epoch}.pth")
 
-    # plot_training(train_losses, train_accs, val_losses, val_accs)
     torch.save(model.state_dict(), f"{args.model_file}.pth")
     print("Hyperparameters:")
     print(f"\tEpochs: {EPOCHS}")
@@ -128,7 +135,6 @@ def train_func(model, data_loader, criterion, optimizer, writer, last_val=20):
         features = features.to(DEVICE)
 
         batch_size = len(labels)
-
         optimizer.zero_grad()
         model.init_hidden_state(batch_size)
 

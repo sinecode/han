@@ -1,8 +1,10 @@
 # Hyperparameters
-EPOCHS = 1
-BATCH_SIZE = 3
+EPOCHS = 10
+BATCH_SIZE = 64
 LEARNING_RATE = 1
 MOMENTUM = 0.9
+WORD_HIDDEN_SIZE = 50
+SENT_HIDDEN_SIZE = 50
 
 # Padding (Yelp)
 SENT_PER_DOC = 12  # 80%
@@ -15,6 +17,6 @@ WORDS_PER_SENT = 23  # 80%
 # WORDS_PER_SENT = 28
 
 # Others
-# DEVICE = "cuda:0"
-DEVICE = "cpu"
-TQDM = False
+DEVICE = "cuda:0"
+# DEVICE = "cpu"
+TQDM = True
