@@ -2,7 +2,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-from config import DEVICE
+from config import DEVICE, BIDIRECTIONAL
 
 
 class WordEncoder(nn.Module):
@@ -15,7 +15,7 @@ class WordEncoder(nn.Module):
         self.gru = nn.GRU(
             input_size=embedding_dim,
             hidden_size=hidden_size,
-            bidirectional=True,
+            bidirectional=(BIDIRECTIONAL == 2),
         )
 
     def forward(self, input, hidden_state):
@@ -28,7 +28,9 @@ class SentEncoder(nn.Module):
     def __init__(self, input_size, hidden_size):
         super(SentEncoder, self).__init__()
         self.gru = nn.GRU(
-            input_size=input_size, hidden_size=hidden_size, bidirectional=True,
+            input_size=input_size,
+            hidden_size=hidden_size,
+            bidirectional=(BIDIRECTIONAL == 2),
         )
 
     def forward(self, input, hidden_state):
@@ -57,7 +59,53 @@ class Attention(nn.Module):
         return weighted_sum
 
 
+class Wan(nn.Module):
+    "Word-level Attention Network"
+
+    def __init__(
+        self, embedding_matrix, word_hidden_size, num_classes, batch_size
+    ):
+        super(Wan, self).__init__()
+        self.word_hidden_size = word_hidden_size
+        self.word_encoder = WordEncoder(embedding_matrix, word_hidden_size)
+        self.word_attention = Attention(word_hidden_size * BIDIRECTIONAL)
+        self.fc = nn.Linear(word_hidden_size * BIDIRECTIONAL, num_classes)
+        self.init_hidden_state(batch_size)
+
+    def init_hidden_state(self, batch_size):
+        self.word_hidden_state = torch.zeros(
+            BIDIRECTIONAL, batch_size, self.word_hidden_size
+        ).to(DEVICE)
+
+    def forward(self, input):
+        # Move the batch size in the last position because
+        # we have to iterate over the document dimension,
+        # that is over all the words of the document.
+        input = input.permute(1, 0)
+        self.word_hidden_state = torch.zeros_like(self.word_hidden_state).to(
+            DEVICE
+        )
+        word_encoder_outputs = []
+        for word in input:
+            # Add an empty dimension because the GRU needs a 3D input,
+            # moreover this is the dimension where all the encoder
+            # outputs will be concatenated
+            word = word.unsqueeze(0)
+            output, self.word_hidden_state = self.word_encoder(
+                word, self.word_hidden_state
+            )
+            word_encoder_outputs.append(output)
+        word_attn_input = torch.cat(word_encoder_outputs, dim=0)
+        word_attn_input = word_attn_input.permute(1, 0, 2)
+        output = self.word_attention(word_attn_input)
+        output = self.fc(output)
+        output = F.log_softmax(output, dim=1)
+        return output
+
+
 class Han(nn.Module):
+    "Hierachical Attention Network"
+
     def __init__(
         self,
         embedding_matrix,
@@ -69,22 +117,27 @@ class Han(nn.Module):
         super(Han, self).__init__()
         self.word_hidden_size = word_hidden_size
         self.word_encoder = WordEncoder(embedding_matrix, word_hidden_size)
-        self.word_attention = Attention(word_hidden_size * 2)
+        self.word_attention = Attention(word_hidden_size * BIDIRECTIONAL)
         self.sent_hidden_size = sent_hidden_size
-        self.sent_encoder = SentEncoder(word_hidden_size * 2, sent_hidden_size)
-        self.sent_attention = Attention(sent_hidden_size * 2)
-        self.fc = nn.Linear(sent_hidden_size * 2, num_classes)
-        self.init_hidden_state(batch_size=1)
+        self.sent_encoder = SentEncoder(
+            word_hidden_size * BIDIRECTIONAL, sent_hidden_size
+        )
+        self.sent_attention = Attention(sent_hidden_size * BIDIRECTIONAL)
+        self.fc = nn.Linear(sent_hidden_size * BIDIRECTIONAL, num_classes)
+        self.init_hidden_state(batch_size)
 
     def init_hidden_state(self, batch_size):
         self.word_hidden_state = torch.zeros(
-            2, batch_size, self.word_hidden_size
+            BIDIRECTIONAL, batch_size, self.word_hidden_size
         ).to(DEVICE)
         self.sent_hidden_state = torch.zeros(
-            2, batch_size, self.sent_hidden_size
+            BIDIRECTIONAL, batch_size, self.sent_hidden_size
         ).to(DEVICE)
 
     def forward(self, input):
+        # Move the batch size in the last position because
+        # we have to iterate over the document dimensions,
+        # that is over all the words and all the sentences.
         input = input.permute(1, 2, 0)
         self.sent_hidden_state = torch.zeros_like(self.sent_hidden_state).to(
             DEVICE
@@ -100,7 +153,7 @@ class Han(nn.Module):
                 # moreover this is the dimension where all the encoder
                 # outputs will be concatenated
                 word = word.unsqueeze(0)
-                output, word_hidden_state = self.word_encoder(
+                output, self.word_hidden_state = self.word_encoder(
                     word, self.word_hidden_state
                 )
                 word_encoder_outputs.append(output)
@@ -109,7 +162,7 @@ class Han(nn.Module):
             output = self.word_attention(word_attn_input)
             # Add an empty dimension (as before)
             output = output.unsqueeze(0)
-            output, sent_hidden_state = self.sent_encoder(
+            output, self.sent_hidden_state = self.sent_encoder(
                 output, self.sent_hidden_state
             )
             sent_encoder_outputs.append(output)

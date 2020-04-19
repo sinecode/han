@@ -9,8 +9,8 @@ from gensim.models import KeyedVectors
 import pandas as pd
 from tqdm import tqdm
 
-from dataset import SentWordDataset
-from han import Han
+from dataset import SentWordDataset, WordDataset
+from models import Han, Wan
 from test import test_func
 from config import (
     BATCH_SIZE,
@@ -46,7 +46,8 @@ def main():
     train_df = pd.read_csv(args.train_dataset).fillna("")
     train_documents = train_df.text
     train_labels = train_df.label
-    train_dataset = SentWordDataset(train_documents, train_labels, wv.vocab)
+    train_dataset = WordDataset(train_documents, train_labels, wv.vocab)
+    # train_dataset = SentWordDataset(train_documents, train_labels, wv.vocab)
     train_data_loader = torch.utils.data.DataLoader(
         train_dataset, batch_size=BATCH_SIZE, shuffle=True
     )
@@ -54,20 +55,27 @@ def main():
     val_df = pd.read_csv(args.val_dataset).fillna("")
     val_documents = val_df.text
     val_labels = val_df.label
-    val_dataset = SentWordDataset(val_documents, val_labels, wv.vocab)
+    val_dataset = WordDataset(val_documents, val_labels, wv.vocab)
+    # val_dataset = SentWordDataset(val_documents, val_labels, wv.vocab)
     val_data_loader = torch.utils.data.DataLoader(
         val_dataset, batch_size=BATCH_SIZE, shuffle=True
     )
 
     writer = SummaryWriter(f"tensorboard/{datetime.now()}")
 
-    model = Han(
+    model = Wan(
         embedding_matrix=wv.vectors,
         word_hidden_size=WORD_HIDDEN_SIZE,
-        sent_hidden_size=SENT_HIDDEN_SIZE,
         num_classes=len(train_labels.unique()),
         batch_size=BATCH_SIZE,
     ).to(DEVICE)
+    # model = Han(
+    #    embedding_matrix=wv.vectors,
+    #    word_hidden_size=WORD_HIDDEN_SIZE,
+    #    sent_hidden_size=SENT_HIDDEN_SIZE,
+    #    num_classes=len(train_labels.unique()),
+    #    batch_size=BATCH_SIZE,
+    # ).to(DEVICE)
 
     criterion = torch.nn.NLLLoss().to(DEVICE)
     optimizer = torch.optim.SGD(

@@ -1,6 +1,5 @@
 from typing import List, Iterable
 
-import pandas as pd
 from tqdm import tqdm
 from nltk.tokenize import sent_tokenize, word_tokenize
 

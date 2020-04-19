@@ -6,7 +6,7 @@ from gensim.models import KeyedVectors
 from tqdm import tqdm
 
 from dataset import SentWordDataset
-from han import Han
+from models import Han
 from config import BATCH_SIZE, DEVICE, TQDM, WORD_HIDDEN_SIZE, SENT_HIDDEN_SIZE
 
 
