@@ -9,13 +9,17 @@ SENT_HIDDEN_SIZE = 50
 
 # Padding (Yelp)
 SENT_PER_DOC = 12  # 80%
-WORDS_PER_SENT = 23  # 80%
 # SENT_PER_DOC = 17  # 90%
+# SENT_PER_DOC = 22  # 95%
+# SENT_PER_DOC = 151  # 100%
+WORDS_PER_SENT = 23  # 80%
 # WORDS_PER_SENT = 30  # 90%
-
-# Padding (Yahoo)
-# SENT_PER_DOC = 8
-# WORDS_PER_SENT = 28
+# WORDS_PER_SENT = 36  # 95%
+# WORDS_PER_SENT = 846  # 100%
+WORDS_PER_DOC = 208  # 80%
+# WORDS_PER_DOC = 294  # 90%
+# WORDS_PER_DOC = 389  # 95%
+# WORDS_PER_DOC = 1234  # 100%
 
 # Others
 DEVICE = "cuda:0"
