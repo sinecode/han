@@ -27,6 +27,7 @@ In this section some statistics about the number of sentences and words in each 
 ![](plots/yelp_sent_per_doc.png)
 
 | **Percentile** | 50% | 80% | 90% | 95% | 100% |
+|----------------|-----|-----|-----------|------|
 | **Value**      | 7   | 12  | 17  | 22  | 151  |
 
 * Number of words per sentence:
@@ -34,6 +35,7 @@ In this section some statistics about the number of sentences and words in each 
 ![](plots/yelp_words_per_sent.png)
 
 | **Percentile** | 50% | 80% | 90% | 95% | 100% |
+|----------------|-----|-----|-----------|------|
 | **Value**      | 14  | 23  | 30  | 36  | 846  |
 
 * Number of words per document:
@@ -41,6 +43,7 @@ In this section some statistics about the number of sentences and words in each 
 ![](plots/yelp_words_per_doc.png)
 
 | **Percentile** | 50% | 80% | 90% | 95% | 100% |
+|----------------|-----|-----|-----------|------|
 | **Value**      | 102 | 208 | 294 | 389 | 1234 |
 
 #### Yahoo
@@ -50,6 +53,7 @@ In this section some statistics about the number of sentences and words in each 
 ![](plots/yahoo_sent_per_doc.png)
 
 | **Percentile** | 50% | 80% | 90% | 95% | 100% |
+|----------------|-----|-----|-----------|------|
 | **Value**      | 4   | 8   | 11  | 16  | 514  |
 
 * Number of words per sentence:
@@ -57,6 +61,7 @@ In this section some statistics about the number of sentences and words in each 
 ![](plots/yahoo_words_per_sent.png)
 
 | **Percentile** | 50% | 80% | 90% | 95% | 100%  |
+|----------------|-----|-----|-----------|-------|
 | **Value**      | 15  | 28  | 37  | 48  | 3977  |
 
 * Number of words per document:
@@ -64,6 +69,7 @@ In this section some statistics about the number of sentences and words in each 
 ![](plots/yahoo_words_per_doc.png)
 
 | **Percentile** | 50% | 80% | 90% | 95% | 100% |
+|----------------|-----|-----|-----------|------|
 | **Value**      | 71  | 157 | 234 | 320 | 4001 |
 
 #### Amazon
@@ -73,6 +79,7 @@ In this section some statistics about the number of sentences and words in each 
 ![](plots/amazon_sent_per_doc.png)
 
 | **Percentile** | 50% | 80% | 90% | 95% | 100% |
+|----------------|-----|-----|-----------|------|
 | **Value**      | 4   | 10  | 16  | 23  | 660  |
 
 * Number of words per sentence:
@@ -80,6 +87,7 @@ In this section some statistics about the number of sentences and words in each 
 ![](plots/amazon_words_per_sent.png)
 
 | **Percentile** | 50% | 80% | 90% | 95% | 100%  |
+|----------------|-----|-----|-----------|-------|
 | **Value**      | 17  | 28  | 35  | 43  | 1981  |
 
 * Number of words per document:
@@ -87,6 +95,7 @@ In this section some statistics about the number of sentences and words in each 
 ![](plots/amazon_words_per_doc.png)
 
 | **Percentile** | 50% | 80% | 90% | 95% | 100% |
+|----------------|-----|-----|-----------|------|
 | **Value**      | 62  | 201 | 346 | 506 | 7485 |
 
 ## Results
