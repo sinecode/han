@@ -62,7 +62,8 @@ def main():
         val_dataset, batch_size=BATCH_SIZE, shuffle=True
     )
 
-    logdir = Path(f"runs/wan/{args.model_file.split('/')[-1]}")
+    logdir = Path(f"runs/{args.model_file.split('/')[-1]}/wan")
+    # logdir = Path(f"runs/{args.model_file.split('/')[-1]}/han")
     logdir.mkdir(parents=True, exist_ok=True)
     writer = SummaryWriter(
         str(logdir / datetime.now().strftime("%Y%m%d-%H%M%S"))
@@ -163,7 +164,7 @@ def train_func(model, data_loader, criterion, optimizer, writer, last_val=20):
             (predictions.argmax(1) == labels).sum().item() / batch_size
         )
 
-        if iteration % 1 == 0:
+        if iteration % 10_000 == 9_999:
             for param_name, param_value in zip(
                 model.state_dict(), model.parameters()
             ):
