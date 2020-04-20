@@ -26,29 +26,39 @@ from config import (
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Train the HAN model")
-    parser.add_argument(
-        "train_dataset", help="CSV file where is stored the training dataset",
+    parser = argparse.ArgumentParser(
+        description="Train the WAN or the HAN model"
     )
     parser.add_argument(
-        "val_dataset", help="CSV file where is stored the validation dataset",
+        "model", choices=["wan", "han"], help="Choose the model to be trained",
     )
-    parser.add_argument(
-        "embedding_file", help="File name where is stored the word2vec model",
-    )
-    parser.add_argument(
-        "model_file", help="File name where to store the trained model",
-    )
+    # parser.add_argument(
+    #    "train_dataset", help="CSV file where is stored the training dataset",
+    # )
+    # parser.add_argument(
+    #    "val_dataset", help="CSV file where is stored the validation dataset",
+    # )
+    # parser.add_argument(
+    #    "embedding_file", help="File name where is stored the word2vec model",
+    # )
+    # parser.add_argument(
+    #    "model_file", help="File name where to store the trained model",
+    # )
 
     args = parser.parse_args()
+    exit()
 
     wv = KeyedVectors.load(args.embedding_file)
 
     train_df = pd.read_csv(args.train_dataset).fillna("")
     train_documents = train_df.text
     train_labels = train_df.label
-    train_dataset = WordDataset(train_documents, train_labels, wv.vocab)
-    # train_dataset = SentWordDataset(train_documents, train_labels, wv.vocab)
+    if args.model == "wan":
+        train_dataset = WordDataset(train_documents, train_labels, wv.vocab)
+    else:
+        train_dataset = SentWordDataset(
+            train_documents, train_labels, wv.vocab
+        )
     train_data_loader = torch.utils.data.DataLoader(
         train_dataset, batch_size=BATCH_SIZE, shuffle=True
     )
@@ -56,32 +66,35 @@ def main():
     val_df = pd.read_csv(args.val_dataset).fillna("")
     val_documents = val_df.text
     val_labels = val_df.label
-    val_dataset = WordDataset(val_documents, val_labels, wv.vocab)
-    # val_dataset = SentWordDataset(val_documents, val_labels, wv.vocab)
+    if args.model == "wan":
+        val_dataset = WordDataset(val_documents, val_labels, wv.vocab)
+    else:
+        val_dataset = SentWordDataset(val_documents, val_labels, wv.vocab)
     val_data_loader = torch.utils.data.DataLoader(
         val_dataset, batch_size=BATCH_SIZE, shuffle=True
     )
 
-    logdir = Path(f"runs/{args.model_file.split('/')[-1]}/wan")
-    # logdir = Path(f"runs/{args.model_file.split('/')[-1]}/han")
+    logdir = Path(f"runs/{args.model_file.split('/')[-1]}/{args.model}")
     logdir.mkdir(parents=True, exist_ok=True)
     writer = SummaryWriter(
         str(logdir / datetime.now().strftime("%Y%m%d-%H%M%S"))
     )
 
-    model = Wan(
-        embedding_matrix=wv.vectors,
-        word_hidden_size=WORD_HIDDEN_SIZE,
-        num_classes=len(train_labels.unique()),
-        batch_size=BATCH_SIZE,
-    ).to(DEVICE)
-    # model = Han(
-    #    embedding_matrix=wv.vectors,
-    #    word_hidden_size=WORD_HIDDEN_SIZE,
-    #    sent_hidden_size=SENT_HIDDEN_SIZE,
-    #    num_classes=len(train_labels.unique()),
-    #    batch_size=BATCH_SIZE,
-    # ).to(DEVICE)
+    if args.model == "wan":
+        model = Wan(
+            embedding_matrix=wv.vectors,
+            word_hidden_size=WORD_HIDDEN_SIZE,
+            num_classes=len(train_labels.unique()),
+            batch_size=BATCH_SIZE,
+        ).to(DEVICE)
+    else:
+        model = Han(
+            embedding_matrix=wv.vectors,
+            word_hidden_size=WORD_HIDDEN_SIZE,
+            sent_hidden_size=SENT_HIDDEN_SIZE,
+            num_classes=len(train_labels.unique()),
+            batch_size=BATCH_SIZE,
+        ).to(DEVICE)
 
     criterion = torch.nn.NLLLoss().to(DEVICE)
     optimizer = torch.optim.SGD(
