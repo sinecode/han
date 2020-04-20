@@ -164,7 +164,7 @@ def train_func(model, data_loader, criterion, optimizer, writer, last_val=20):
             (predictions.argmax(1) == labels).sum().item() / batch_size
         )
 
-        if iteration % 10_000 == 9_999:
+        if iteration % 1_000 == 999:
             for param_name, param_value in zip(
                 model.state_dict(), model.parameters()
             ):

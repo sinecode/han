@@ -2,7 +2,7 @@
 
 Replication of some of the experiments reported in [1].
 
-The main goal of these experiments is to compare the performances of a Hierarchical Attention Network with a classic BoW approach.
+The main goal of these experiments is to compare the performances of a Hierarchical Attention Network with a Non-Hierarchical Attention and a classic BoW approach.
 
 ## Datasets
 
@@ -14,11 +14,11 @@ I wasn't able to find the exactly datasets of the paper, so I have created three
 | Yahoo Answer  |      10     |   1,450,000   |
 | Amazon review |      5      |   3,650,000   |
 
-As reported in the paper, 80% of the data is used for training, 10% for validation and the remaining 10% for test.
+As reported in the paper, 80% of the data is used for training, 10% for validation and the remaining 10% for test. All the dataset used in this experiments, together with the embeddings, are available [here](https://drive.google.com/open?id=1U2f7PfDYUrvfkIkNQPYR2OufAkuldNu6).
 
 ### Dataset statistics
 
-In this section some statistics about the number of sentences and words in each document are reported. This kind of information are useful with the padding of the features. These data are obtained on the training and the validation set.
+In this section some statistics about the number of sentences and words in each document are reported. In the `plots` directory there are the distribution plots of these data. This kind of information are useful with the padding of the features. These data are obtained on the training and the validation set.
 
 #### Yelp
 
