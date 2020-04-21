@@ -1,7 +1,6 @@
 import numpy as np
 import torch
 
-from config import SENT_PER_DOC, WORDS_PER_SENT, WORDS_PER_DOC
 from utils import sent_word_tokenize, tokenize
 
 
@@ -11,12 +10,13 @@ class WordDataset(torch.utils.data.Dataset):
     The tokenization is in words only.
     """
 
-    def __init__(self, documents, labels, vocab):
+    def __init__(self, documents, labels, vocab, words_per_doc):
         super(WordDataset, self).__init__()
         assert len(documents) == len(labels)
         self.documents = documents
         self.labels = labels
         self.vocab = vocab
+        self.words_per_doc = words_per_doc
 
     def _word_to_index(self, word):
         try:
@@ -31,42 +31,31 @@ class WordDataset(torch.utils.data.Dataset):
         "Return a tuple (label, [tokens])"
         label = self.labels[index]
         doc = self.documents[index]
-        features = np.zeros(shape=(WORDS_PER_DOC), dtype=np.int64)
-        for i, word in zip(range(WORDS_PER_DOC), tokenize(doc)):
+        features = np.zeros(shape=(self.words_per_doc), dtype=np.int64)
+        for i, word in zip(range(self.words_per_doc), tokenize(doc)):
             features[i] = self._word_to_index(word)
         return label, features
 
 
-class SentWordDataset(torch.utils.data.Dataset):
+class SentWordDataset(WordDataset):
     """
     Dataset where each document is tokenized on the fly.
     The tokenization is in sentences and words.
     """
 
-    def __init__(self, documents, labels, vocab):
-        super(SentWordDataset, self).__init__()
-        assert len(documents) == len(labels)
-        self.documents = documents
-        self.labels = labels
-        self.vocab = vocab
-
-    def _word_to_index(self, word):
-        try:
-            return self.vocab[word].index
-        except KeyError:
-            return self.vocab["UNK"].index  # Out-Of-Vocabulary (OOV) word
-
-    def __len__(self):
-        return len(self.documents)
+    def __init__(self, documents, labels, vocab, sent_per_doc, words_per_sent):
+        super(SentWordDataset, self).__init__(documents, labels, vocab, 0)
+        self.sent_per_doc = sent_per_doc
+        self.words_per_sent = words_per_sent
 
     def __getitem__(self, index):
         "Return a tuple (label, [sentences])"
         label = self.labels[index]
         doc = self.documents[index]
         features = np.zeros(
-            shape=(SENT_PER_DOC, WORDS_PER_SENT), dtype=np.int64
+            shape=(self.sent_per_doc, self.words_per_sent), dtype=np.int64
         )
-        for i, sent in zip(range(SENT_PER_DOC), sent_word_tokenize(doc)):
-            for j, word in zip(range(WORDS_PER_SENT), sent):
+        for i, sent in zip(range(self.sent_per_doc), sent_word_tokenize(doc)):
+            for j, word in zip(range(self.words_per_sent), sent):
                 features[i, j] = self._word_to_index(word)
         return label, features

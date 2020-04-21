@@ -22,6 +22,11 @@ from config import (
     TQDM,
     WORD_HIDDEN_SIZE,
     SENT_HIDDEN_SIZE,
+    MODEL_DIR,
+    Yelp,
+    YelpSample,
+    Yahoo,
+    Amazon,
 )
 
 
@@ -30,51 +35,75 @@ def main():
         description="Train the WAN or the HAN model"
     )
     parser.add_argument(
+        "dataset",
+        choices=["yelp", "yelp-sample", "yahoo", "amazon"],
+        help="Choose the dataset",
+    )
+    parser.add_argument(
         "model", choices=["wan", "han"], help="Choose the model to be trained",
     )
-    # parser.add_argument(
-    #    "train_dataset", help="CSV file where is stored the training dataset",
-    # )
-    # parser.add_argument(
-    #    "val_dataset", help="CSV file where is stored the validation dataset",
-    # )
-    # parser.add_argument(
-    #    "embedding_file", help="File name where is stored the word2vec model",
-    # )
-    # parser.add_argument(
-    #    "model_file", help="File name where to store the trained model",
-    # )
 
     args = parser.parse_args()
-    exit()
 
-    wv = KeyedVectors.load(args.embedding_file)
+    if args.dataset == "yelp":
+        dataset_config = Yelp
+    elif args.dataset == "yelp-sample":
+        dataset_config = YelpSample
+    elif args.dataset == "yahoo":
+        dataset_config = Yahoo
+    elif args.dataset == "amazon":
+        dataset_config = Amazon
+    else:
+        # should not end there
+        exit()
 
-    train_df = pd.read_csv(args.train_dataset).fillna("")
+    wv = KeyedVectors.load(dataset_config.EMBEDDING_FILE)
+
+    train_df = pd.read_csv(dataset_config.TRAIN_DATASET).fillna("")
     train_documents = train_df.text
     train_labels = train_df.label
     if args.model == "wan":
-        train_dataset = WordDataset(train_documents, train_labels, wv.vocab)
+        train_dataset = WordDataset(
+            train_documents,
+            train_labels,
+            wv.vocab,
+            dataset_config.WORDS_PER_DOC_80,
+        )
     else:
         train_dataset = SentWordDataset(
-            train_documents, train_labels, wv.vocab
+            train_documents,
+            train_labels,
+            wv.vocab,
+            dataset_config.SENT_PER_DOC_80,
+            dataset_config.WORDS_PER_SENT_80,
         )
     train_data_loader = torch.utils.data.DataLoader(
         train_dataset, batch_size=BATCH_SIZE, shuffle=True
     )
 
-    val_df = pd.read_csv(args.val_dataset).fillna("")
+    val_df = pd.read_csv(dataset_config.VAL_DATASET).fillna("")
     val_documents = val_df.text
     val_labels = val_df.label
     if args.model == "wan":
-        val_dataset = WordDataset(val_documents, val_labels, wv.vocab)
+        val_dataset = WordDataset(
+            val_documents,
+            val_labels,
+            wv.vocab,
+            dataset_config.WORDS_PER_DOC_80,
+        )
     else:
-        val_dataset = SentWordDataset(val_documents, val_labels, wv.vocab)
+        val_dataset = SentWordDataset(
+            val_documents,
+            val_labels,
+            wv.vocab,
+            dataset_config.SENT_PER_DOC_80,
+            dataset_config.WORDS_PER_SENT_80,
+        )
     val_data_loader = torch.utils.data.DataLoader(
         val_dataset, batch_size=BATCH_SIZE, shuffle=True
     )
 
-    logdir = Path(f"runs/{args.model_file.split('/')[-1]}/{args.model}")
+    logdir = Path(f"runs/{args.dataset}/{args.model}")
     logdir.mkdir(parents=True, exist_ok=True)
     writer = SummaryWriter(
         str(logdir / datetime.now().strftime("%Y%m%d-%H%M%S"))
@@ -145,7 +174,10 @@ def main():
     )
     writer.close()
 
-    torch.save(model.state_dict(), f"{args.model_file}.pth")
+    torch.save(
+        model.state_dict(),
+        f"{MODEL_DIR}/{args.dataset}-{args.model}-{datetime.now().strftime('%Y%m%d-%H%M%S')}.pth",
+    )
 
 
 def train_func(model, data_loader, criterion, optimizer, writer, last_val=20):

@@ -5,42 +5,88 @@ import pandas as pd
 from gensim.models import KeyedVectors
 from tqdm import tqdm
 
-from dataset import SentWordDataset
-from models import Han
-from config import BATCH_SIZE, DEVICE, TQDM, WORD_HIDDEN_SIZE, SENT_HIDDEN_SIZE
+from dataset import SentWordDataset, WordDataset
+from models import Wan, Han
+from config import (
+    BATCH_SIZE,
+    DEVICE,
+    TQDM,
+    WORD_HIDDEN_SIZE,
+    SENT_HIDDEN_SIZE,
+    Yelp,
+    YelpSample,
+    Yahoo,
+    Amazon,
+)
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Test the HAN model")
+    parser = argparse.ArgumentParser(description="Test the model")
     parser.add_argument(
-        "test_dataset", help="CSV file where is stored the test dataset",
+        "dataset",
+        choices=["yelp", "yelp-sample", "yahoo", "amazon"],
+        help="Choose the dataset",
     )
     parser.add_argument(
-        "embedding_file", help="File name where is stored the word2vec model",
+        "model", choices=["wan", "han"], help="Choose the model to be tested",
     )
     parser.add_argument(
-        "model_file", help="File name where is stored the trained model",
+        "model_file", help="File where the trained models is stored",
     )
 
     args = parser.parse_args()
 
-    wv = KeyedVectors.load(args.embedding_file)
+    if args.dataset == "yelp":
+        dataset_config = Yelp
+    elif args.dataset == "yelp-sample":
+        dataset_config = YelpSample
+    elif args.dataset == "yahoo":
+        dataset_config = Yahoo
+    elif args.dataset == "amazon":
+        dataset_config = Amazon
+    else:
+        # should not end there
+        exit()
 
-    test_df = pd.read_csv(args.test_dataset).fillna("")
+    wv = KeyedVectors.load(dataset_config.EMBEDDING_FILE)
+
+    test_df = pd.read_csv(dataset_config.TEST_DATASET).fillna("")
     test_documents = test_df.text
     test_labels = test_df.label
-    test_dataset = SentWordDataset(test_documents, test_labels, wv.vocab)
+    if args.model == "wan":
+        test_dataset = WordDataset(
+            test_documents,
+            test_labels,
+            wv.vocab,
+            dataset_config.WORDS_PER_DOC_80,
+        )
+    else:
+        test_dataset = SentWordDataset(
+            test_documents,
+            test_labels,
+            wv.vocab,
+            dataset_config.SENT_PER_DOC_80,
+            dataset_config.WORDS_PER_SENT_80,
+        )
     test_data_loader = torch.utils.data.DataLoader(
         test_dataset, batch_size=BATCH_SIZE, shuffle=True
     )
 
-    model = Han(
-        embedding_matrix=wv.vectors,
-        word_hidden_size=WORD_HIDDEN_SIZE,
-        sent_hidden_size=SENT_HIDDEN_SIZE,
-        num_classes=len(test_labels.unique()),
-        batch_size=BATCH_SIZE,
-    ).to(DEVICE)
+    if args.model == "wan":
+        model = Wan(
+            embedding_matrix=wv.vectors,
+            word_hidden_size=WORD_HIDDEN_SIZE,
+            num_classes=len(test_labels.unique()),
+            batch_size=BATCH_SIZE,
+        ).to(DEVICE)
+    else:
+        model = Han(
+            embedding_matrix=wv.vectors,
+            word_hidden_size=WORD_HIDDEN_SIZE,
+            sent_hidden_size=SENT_HIDDEN_SIZE,
+            num_classes=len(test_labels.unique()),
+            batch_size=BATCH_SIZE,
+        ).to(DEVICE)
     model.load_state_dict(torch.load(args.model_file))
 
     criterion = torch.nn.NLLLoss().to(DEVICE)
