@@ -1,57 +1,129 @@
 import argparse
 import time
 from datetime import datetime
+from pathlib import Path
 from collections import deque
 
 import torch
 from tensorboardX import SummaryWriter
 from gensim.models import KeyedVectors
-import matplotlib.pyplot as plt
-import matplotlib.ticker as mticker
+import pandas as pd
 from tqdm import tqdm
 
-from dataset import MyDataset
-from han import Han
+from dataset import SentWordDataset, WordDataset
+from models import Han, Wan
 from test import test_func
-from config import BATCH_SIZE, EPOCHS, LEARNING_RATE, MOMENTUM, DEVICE, TQDM
+from config import (
+    BATCH_SIZE,
+    EPOCHS,
+    LEARNING_RATE,
+    MOMENTUM,
+    DEVICE,
+    TQDM,
+    WORD_HIDDEN_SIZE,
+    SENT_HIDDEN_SIZE,
+    MODEL_DIR,
+    Yelp,
+    YelpSample,
+    Yahoo,
+    Amazon,
+)
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Train the HAN model")
-    parser.add_argument(
-        "train_dataset", help="CSV file where is stored the training dataset",
+    parser = argparse.ArgumentParser(
+        description="Train the WAN or the HAN model"
     )
     parser.add_argument(
-        "val_dataset", help="CSV file where is stored the validation dataset",
+        "dataset",
+        choices=["yelp", "yelp-sample", "yahoo", "amazon"],
+        help="Choose the dataset",
     )
     parser.add_argument(
-        "embedding_file", help="File name where is stored the word2vec model",
-    )
-    parser.add_argument(
-        "model_file", help="File name where to store the trained model",
+        "model", choices=["wan", "han"], help="Choose the model to be trained",
     )
 
     args = parser.parse_args()
 
-    wv = KeyedVectors.load(args.embedding_file)
-    num_classes = 10 if "yahoo" in args.train_dataset else 5  # TODO fix
-    model = Han(
-        embedding_matrix=wv.vectors,
-        num_classes=num_classes,
-        word_hidden_size=50,
-        sent_hidden_size=50,
-    ).to(DEVICE)
+    if args.dataset == "yelp":
+        dataset_config = Yelp
+    elif args.dataset == "yelp-sample":
+        dataset_config = YelpSample
+    elif args.dataset == "yahoo":
+        dataset_config = Yahoo
+    elif args.dataset == "amazon":
+        dataset_config = Amazon
+    else:
+        # should not end there
+        exit()
 
-    writer = SummaryWriter(f"tensorboard/{datetime.now()}")
+    wv = KeyedVectors.load(dataset_config.EMBEDDING_FILE)
 
-    train_dataset = MyDataset(args.train_dataset, wv.vocab)
+    train_df = pd.read_csv(dataset_config.TRAIN_DATASET).fillna("")
+    train_documents = train_df.text
+    train_labels = train_df.label
+    if args.model == "wan":
+        train_dataset = WordDataset(
+            train_documents,
+            train_labels,
+            wv.vocab,
+            dataset_config.WORDS_PER_DOC_80,
+        )
+    else:
+        train_dataset = SentWordDataset(
+            train_documents,
+            train_labels,
+            wv.vocab,
+            dataset_config.SENT_PER_DOC_80,
+            dataset_config.WORDS_PER_SENT_80,
+        )
     train_data_loader = torch.utils.data.DataLoader(
         train_dataset, batch_size=BATCH_SIZE, shuffle=True
     )
-    val_dataset = MyDataset(args.val_dataset, wv.vocab)
+
+    val_df = pd.read_csv(dataset_config.VAL_DATASET).fillna("")
+    val_documents = val_df.text
+    val_labels = val_df.label
+    if args.model == "wan":
+        val_dataset = WordDataset(
+            val_documents,
+            val_labels,
+            wv.vocab,
+            dataset_config.WORDS_PER_DOC_80,
+        )
+    else:
+        val_dataset = SentWordDataset(
+            val_documents,
+            val_labels,
+            wv.vocab,
+            dataset_config.SENT_PER_DOC_80,
+            dataset_config.WORDS_PER_SENT_80,
+        )
     val_data_loader = torch.utils.data.DataLoader(
         val_dataset, batch_size=BATCH_SIZE, shuffle=True
     )
+
+    logdir = Path(f"runs/{args.dataset}/{args.model}")
+    logdir.mkdir(parents=True, exist_ok=True)
+    writer = SummaryWriter(
+        str(logdir / datetime.now().strftime("%Y%m%d-%H%M%S"))
+    )
+
+    if args.model == "wan":
+        model = Wan(
+            embedding_matrix=wv.vectors,
+            word_hidden_size=WORD_HIDDEN_SIZE,
+            num_classes=len(train_labels.unique()),
+            batch_size=BATCH_SIZE,
+        ).to(DEVICE)
+    else:
+        model = Han(
+            embedding_matrix=wv.vectors,
+            word_hidden_size=WORD_HIDDEN_SIZE,
+            sent_hidden_size=SENT_HIDDEN_SIZE,
+            num_classes=len(train_labels.unique()),
+            batch_size=BATCH_SIZE,
+        ).to(DEVICE)
 
     criterion = torch.nn.NLLLoss().to(DEVICE)
     optimizer = torch.optim.SGD(
@@ -59,11 +131,11 @@ def main():
         lr=LEARNING_RATE,
         momentum=MOMENTUM,
     )
+
     train_losses = []
     train_accs = []
     val_losses = []
     val_accs = []
-
     total_start_time = time.time()
     for epoch in range(1, EPOCHS + 1):
         start_time = time.time()
@@ -85,24 +157,27 @@ def main():
             f"Epoch {epoch} | in {mins}m {secs}s, total {total_mins}m {total_secs}s"
         )
         print(
-            f"\tTrain loss: {train_loss:.3e}, Train acc: {train_acc * 100:.1f}%"
+            f"\tTrain loss: {train_loss:.4}, Train acc: {train_acc * 100:.1f}%"
         )
-        print(f"\tVal loss: {val_loss:.3e}, Val acc: {val_acc * 100:.1f}%")
+        print(f"\tVal loss: {val_loss:.4}, Val acc: {val_acc * 100:.1f}%")
 
         writer.add_scalar("Train/Loss", train_loss, epoch)
         writer.add_scalar("Train/Accuracy", train_acc, epoch)
         writer.add_scalar("Validation/Loss", val_loss, epoch)
         writer.add_scalar("Validation/Accuracy", val_acc, epoch)
-        if epoch != EPOCHS:
-            torch.save(model.state_dict(), f"{args.model_file}-{epoch}.pth")
 
-    # plot_training(train_losses, train_accs, val_losses, val_accs)
-    torch.save(model.state_dict(), f"{args.model_file}.pth")
-    print("Hyperparameters:")
-    print(f"\tEpochs: {EPOCHS}")
-    print(f"\tBatch size: {BATCH_SIZE}")
-    print(f"\tLearning rate: {LEARNING_RATE}")
-    print(f"\tMomentum: {MOMENTUM}")
+    writer.add_text(
+        "Hyperparameters",
+        f"Batch size = {BATCH_SIZE}; "
+        f"Learning rate = {LEARNING_RATE}; "
+        f"Momentum = {MOMENTUM}",
+    )
+    writer.close()
+
+    torch.save(
+        model.state_dict(),
+        f"{MODEL_DIR}/{args.dataset}-{args.model}-{datetime.now().strftime('%Y%m%d-%H%M%S')}.pth",
+    )
 
 
 def train_func(model, data_loader, criterion, optimizer, writer, last_val=20):
@@ -120,7 +195,6 @@ def train_func(model, data_loader, criterion, optimizer, writer, last_val=20):
         features = features.to(DEVICE)
 
         batch_size = len(labels)
-
         optimizer.zero_grad()
         model.init_hidden_state(batch_size)
 
@@ -135,7 +209,7 @@ def train_func(model, data_loader, criterion, optimizer, writer, last_val=20):
             (predictions.argmax(1) == labels).sum().item() / batch_size
         )
 
-        if iteration % 1 == 0:
+        if iteration % 1_000 == 999:
             for param_name, param_value in zip(
                 model.state_dict(), model.parameters()
             ):
@@ -148,30 +222,6 @@ def train_func(model, data_loader, criterion, optimizer, writer, last_val=20):
                     #    param_name + "/grad", param_value.grad, iteration,
                     # )
     return sum(losses) / len(losses), sum(accs) / len(accs)
-
-
-def plot_training(train_losses, train_accs, val_losses, val_accs):
-    epochs = list(range(1, len(train_losses) + 1))
-    plt.figure(1)
-    plt.plot(epochs, train_losses)
-    plt.plot(epochs, val_losses)
-    plt.xlabel("Epochs")
-    plt.ylabel("Loss")
-    plt.xticks(epochs)
-    plt.gca().yaxis.set_major_formatter(mticker.FormatStrFormatter("%.2e"))
-    plt.legend(["Train", "Validation"])
-    plt.tight_layout()
-    plt.savefig("plots/loss.pdf")
-    plt.figure(2)
-    plt.plot(epochs, train_accs)
-    plt.plot(epochs, val_accs)
-    plt.xlabel("Epochs")
-    plt.ylabel("Accuracy")
-    plt.xticks(epochs)
-    plt.gca().yaxis.set_major_formatter(mticker.FormatStrFormatter("%.2f"))
-    plt.legend(["Train", "Validation"])
-    plt.tight_layout()
-    plt.savefig("plots/accuracy.pdf")
 
 
 if __name__ == "__main__":
