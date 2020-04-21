@@ -1,6 +1,8 @@
 # HAN
 
-Replication of some of the experiments reported in [1].
+Replication of some of the experiments reported in:
+
+[Yang, Zichao, et al. "Hierarchical attention networks for document classification." Proceedings of the 2016 conference of the North American chapter of the association for computational linguistics: human language technologies. 2016.](https://www.cs.cmu.edu/~./hovy/papers/16HLT-hierarchical-attention-networks.pdf)
 
 The main goal of these experiments is to compare the performances of a Hierarchical Attention Network with a Non-Hierarchical Attention and a classic BoW approach.
 
@@ -108,7 +110,3 @@ Document classification, in percentage
 | **BoW**       |   61.3   |   66.9    |    52.2    |
 | **BoW-TFIDF** |   61.3   |   66.9    |    52.2    |
 | **HAN**       |   ....   |   ....    |    ....    |
-
-## References
-
-[1] *Yang, Zichao, et al. "Hierarchical attention networks for document classification." Proceedings of the 2016 conference of the North American chapter of the association for computational linguistics: human language technologies. 2016.*
