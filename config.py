@@ -2,10 +2,11 @@ import torch
 
 
 # Hyperparameters
-EPOCHS = 2
+EPOCHS = 30
 BATCH_SIZE = 64
 LEARNING_RATE = 0.01
 MOMENTUM = 0.9
+PATIENCE = 3
 EMBEDDING_SIZE = 200
 BIDIRECTIONAL = 2  # set to 1 (not bidirectional) or 2 (bidirectional)
 WORD_HIDDEN_SIZE = 50

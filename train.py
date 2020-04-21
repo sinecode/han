@@ -18,6 +18,7 @@ from config import (
     EPOCHS,
     LEARNING_RATE,
     MOMENTUM,
+    PATIENCE,
     DEVICE,
     TQDM,
     WORD_HIDDEN_SIZE,
@@ -136,9 +137,12 @@ def main():
     train_accs = []
     val_losses = []
     val_accs = []
+    best_val_loss = 100_000
+    actual_patience = 0
     total_start_time = time.time()
     for epoch in range(1, EPOCHS + 1):
         start_time = time.time()
+
         train_loss, train_acc = train_func(
             model, train_data_loader, criterion, optimizer, writer
         )
@@ -147,6 +151,7 @@ def main():
         val_loss, val_acc = test_func(model, val_data_loader, criterion)
         val_losses.append(val_loss)
         val_accs.append(val_acc)
+
         secs = int(time.time() - start_time)
         mins = secs // 60
         secs = secs % 60
@@ -166,11 +171,20 @@ def main():
         writer.add_scalar("Validation/Loss", val_loss, epoch)
         writer.add_scalar("Validation/Accuracy", val_acc, epoch)
 
+        # Early stopping with patience
+        if val_loss < best_val_loss:
+            best_val_loss = val_loss
+        else:
+            actual_patience += 1
+            if actual_patience == PATIENCE:
+                break
+
     writer.add_text(
         "Hyperparameters",
         f"Batch size = {BATCH_SIZE}; "
         f"Learning rate = {LEARNING_RATE}; "
-        f"Momentum = {MOMENTUM}",
+        f"Momentum = {MOMENTUM}; "
+        f"Patience = {PATIENCE}",
     )
     writer.close()
 
