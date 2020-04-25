@@ -1,7 +1,7 @@
 import numpy as np
 import torch
 
-from utils import sent_word_tokenize, tokenize
+from utils import sent_word_tokenize, tokenize, word_to_index
 
 
 class WordDataset(torch.utils.data.Dataset):
@@ -18,12 +18,6 @@ class WordDataset(torch.utils.data.Dataset):
         self.vocab = vocab
         self.words_per_doc = words_per_doc
 
-    def _word_to_index(self, word):
-        try:
-            return self.vocab[word].index
-        except KeyError:
-            return self.vocab["UNK"].index  # Out-Of-Vocabulary (OOV) word
-
     def __len__(self):
         return len(self.documents)
 
@@ -33,7 +27,7 @@ class WordDataset(torch.utils.data.Dataset):
         doc = self.documents[index]
         features = np.zeros(shape=(self.words_per_doc), dtype=np.int64)
         for i, word in zip(range(self.words_per_doc), tokenize(doc)):
-            features[i] = self._word_to_index(word)
+            features[i] = word_to_index(word, self.vocab)
         return label, features
 
 
@@ -57,5 +51,5 @@ class SentWordDataset(WordDataset):
         )
         for i, sent in zip(range(self.sent_per_doc), sent_word_tokenize(doc)):
             for j, word in zip(range(self.words_per_sent), sent):
-                features[i, j] = self._word_to_index(word)
+                features[i, j] = word_to_index(word, self.vocab)
         return label, features

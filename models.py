@@ -44,6 +44,7 @@ class Attention(nn.Module):
         self.input_size = input_size
         self.fc = nn.Linear(self.input_size, self.input_size)
         self.context_vector = nn.Parameter(torch.randn(self.input_size))
+        self.last_weights = []
 
     def forward(self, input):
         output = torch.tanh(self.fc(input))
@@ -53,7 +54,9 @@ class Attention(nn.Module):
         input = input.permute(1, 0, 2)
         batch_size = input.shape[1]
         weighted_sum = torch.zeros(batch_size, self.input_size).to(DEVICE)
+        self.last_weights = []
         for alpha, h in zip(output, input):
+            self.last_weights.append(alpha.item())
             alpha = alpha.unsqueeze(1).expand_as(h)
             weighted_sum += alpha * h
         return weighted_sum
