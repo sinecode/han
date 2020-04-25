@@ -110,3 +110,20 @@ Document classification, in percentage
 | **BoW**       |   61.3   |   66.9    |    52.2    |
 | **BoW-TFIDF** |   61.3   |   66.9    |    52.2    |
 | **HAN**       |   ....   |   ....    |    ....    |
+
+## Notes
+
+The Yahoo Answer categories are mapped as the following:
+
+|        **Domain**      | **Label** |
+|------------------------|-----------|
+| Business & Finance     | 0         |
+| Computers & Internet   | 1         |
+| Education & Reference  | 2         |
+| Entertainment & Music  | 3         |
+| Family & Relationships | 4         |
+| Health                 | 5         |
+| Politics & Government  | 6         |
+| Science & Mathematics  | 7         |
+| Society & Culture      | 8         |
+| Sports                 | 9         |

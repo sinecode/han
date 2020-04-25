@@ -44,7 +44,7 @@ class Attention(nn.Module):
         self.input_size = input_size
         self.fc = nn.Linear(self.input_size, self.input_size)
         self.context_vector = nn.Parameter(torch.randn(self.input_size))
-        self.last_weights = []
+        self.last_weights = []  # for attention visualization
 
     def forward(self, input):
         output = torch.tanh(self.fc(input))
