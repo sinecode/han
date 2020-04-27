@@ -87,7 +87,7 @@ def main():
             num_classes=len(test_labels.unique()),
             batch_size=BATCH_SIZE,
         ).to(DEVICE)
-    model.load_state_dict(torch.load(args.model_file))
+    model.load_state_dict(torch.load(args.model_file, map_location=DEVICE))
 
     criterion = torch.nn.NLLLoss().to(DEVICE)
     loss, acc = test_func(model, test_data_loader, criterion)

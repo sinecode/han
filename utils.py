@@ -27,6 +27,14 @@ def sent_word_tokenize(doc: str) -> List[List[str]]:
     return [word_tokenize(sentence) for sentence in sent_tokenize(doc)]
 
 
+def word_to_index(word, vocab, oov_token="UNK"):
+    "Convert a word into an index according to the input vocabulary"
+    try:
+        return vocab[word].index
+    except KeyError:
+        return vocab[oov_token].index
+
+
 def count_tokens(documents: Iterable[str], verbose=False):
     """Return three lists:
 
