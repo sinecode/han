@@ -88,9 +88,21 @@ In this section some statistics about the number of sentences and words in each 
 
 To train and test a BoW model (both with and without TFIDF), run
 
-    $ python bow.py {yelp, yelp-sample, yahoo, amazon}
+    $ python bow.py {yelp,yelp-sample,yahoo,amazon}
 
 A Stochastic Gradient Descent classifier is used together with a logistic regression loss. The 50,000 most frequent words from the training set are selected and the count of each word is used as features. A grid search cross-validation is used to find the best `alpha` parameter, that is the constant that multiplies the regularization term.
+
+## Word embedding
+
+The first layer of the attention networks is an embedding layer, which transform a word into a fix sized vector that is a numerical representation of the meaning of that word.
+
+As mentioned in the paper, this layer is pretrained on the training and validation sets. To train a word embedding matrix run
+
+    $ python word2vec.py {yelp,yahoo,amazon}
+
+This script will produce a file in the directory `embedding` containing the matrix of the learned word embedding.
+
+The words that appear less then five times in the whole dataset are substituted with a special `UNK` token.
 
 ## Results
 
