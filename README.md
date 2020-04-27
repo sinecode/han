@@ -20,7 +20,7 @@ As reported in the paper, 80% of the data is used for training, 10% for validati
 
 ### Dataset statistics
 
-In this section some statistics about the number of sentences and words in each document are reported. In the `plots` directory there are the distribution plots of these data. This kind of information are useful with the padding of the features. These data are obtained on the training and the validation set.
+In this section some statistics about the number of sentences and words in each document are reported. This kind of information are useful with the padding of the features. These data are obtained on the training and the validation set.
 
 #### Yelp
 
