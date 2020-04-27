@@ -104,6 +104,22 @@ This script will produce a file in the directory `embedding` containing the matr
 
 The words that appear less then five times in the whole dataset are substituted with a special `UNK` token.
 
+## Attention models
+
+In addition to the model proposed in the paper (Hierarchical Attention Network or HAN), I have implemented a Word-level Attention Network (WAN), that is the same model but with only one attention layer, without taking into account the different sentences of the document.
+
+With the script `train.py` is possible to train a WAN or HAN model:
+
+    $ python train.py {yelp,yelp-sample,yahoo,amazon} {wan,han}
+
+The trained model will be saved into a directory called `models` and the logging of the training process will be stored into a directory called `runs`. The plots of the training phase can be viewed with Tensorboard:
+
+    $ tensorboard --logdir=runs
+
+To test a model, run
+
+    $ python test.py {yelp,yelp-sample,yahoo,amazon} {wan,han} <model_file>
+
 ## Results
 
 Document classification, in percentage
