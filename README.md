@@ -26,8 +26,6 @@ In this section some statistics about the number of sentences and words in each 
 
 * Number of sentences per document:
 
-[//]: ![](plots/yelp_sent_per_doc.png)
-
 | **Percentile** | 50% | 80% | 90% | 95% | 100% |
 |----------------|-----|-----|-----|-----|------|
 | **Value**      | 7   | 12  | 17  | 22  | 151  |
@@ -35,15 +33,11 @@ In this section some statistics about the number of sentences and words in each 
 
 * Number of words per sentence:
 
-[//]: ![](plots/yelp_words_per_sent.png)
-
 | **Percentile** | 50% | 80% | 90% | 95% | 100% |
 |----------------|-----|-----|-----|-----|------|
 | **Value**      | 14  | 23  | 30  | 36  | 846  |
 
 * Number of words per document:
-
-[//]: ![](plots/yelp_words_per_doc.png)
 
 | **Percentile** | 50% | 80% | 90% | 95% | 100% |
 |----------------|-----|-----|-----|-----|------|
@@ -53,23 +47,17 @@ In this section some statistics about the number of sentences and words in each 
 
 * Number of sentences per document:
 
-[//]: ![](plots/yahoo_sent_per_doc.png)
-
 | **Percentile** | 50% | 80% | 90% | 95% | 100% |
 |----------------|-----|-----|-----|-----|------|
 | **Value**      | 4   | 8   | 11  | 16  | 514  |
 
 * Number of words per sentence:
 
-[//]: ![](plots/yahoo_words_per_sent.png)
-
 | **Percentile** | 50% | 80% | 90% | 95% | 100%  |
 |----------------|-----|-----|-----|-----|-------|
 | **Value**      | 15  | 28  | 37  | 48  | 3977  |
 
 * Number of words per document:
-
-[//]: ![](plots/yahoo_words_per_doc.png)
 
 | **Percentile** | 50% | 80% | 90% | 95% | 100% |
 |----------------|-----|-----|-----|-----|------|
@@ -79,15 +67,11 @@ In this section some statistics about the number of sentences and words in each 
 
 * Number of sentences per document:
 
-[//]: ![](plots/amazon_sent_per_doc.png)
-
 | **Percentile** | 50% | 80% | 90% | 95% | 100% |
 |----------------|-----|-----|-----|-----|------|
 | **Value**      | 4   | 10  | 16  | 23  | 660  |
 
 * Number of words per sentence:
-
-[//]: ![](plots/amazon_words_per_sent.png)
 
 | **Percentile** | 50% | 80% | 90% | 95% | 100%  |
 |----------------|-----|-----|-----|-----|-------|
@@ -95,11 +79,18 @@ In this section some statistics about the number of sentences and words in each 
 
 * Number of words per document:
 
-[//]: ![](plots/amazon_words_per_doc.png)
-
 | **Percentile** | 50% | 80% | 90% | 95% | 100% |
 |----------------|-----|-----|-----|-----|------|
 | **Value**      | 62  | 201 | 346 | 506 | 7485 |
+
+
+## Bag-Of-Words
+
+To train and test a BoW model (both with and without TFIDF), run
+
+    $ python bow.py {yelp, yelp-sample, yahoo, amazon}
+
+A Stochastic Gradient Descent classifier is used together with a logistic regression loss. The 50,000 most frequent words from the training set are selected and the count of each word is used as features. A grid search cross-validation is used to find the best `alpha` parameter.
 
 ## Results
 
