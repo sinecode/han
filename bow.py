@@ -1,14 +1,3 @@
-"""
-BoW based models.
-
-A multinomial logistic regression is used together with
-a Stochastic Gradient Descent.
-
-- Classic BoW
-- BoW-TFIDF
-"""
-
-
 import argparse
 
 import pandas as pd
@@ -17,6 +6,8 @@ from sklearn.pipeline import make_pipeline
 from sklearn.feature_extraction.text import CountVectorizer, TfidfVectorizer
 from sklearn.preprocessing import MaxAbsScaler
 from sklearn.linear_model import SGDClassifier
+
+from config import Yelp, YelpSample, Yahoo, Amazon
 
 
 def run_experiment(vectorizer, text_train, y_train, text_test, y_test):
@@ -68,10 +59,28 @@ def main():
     parser = argparse.ArgumentParser(
         description="Run the experiment with a BoW model"
     )
-    parser.add_argument("dataset", help="Dataset csv file")
+    parser.add_argument(
+        "dataset",
+        choices=["yelp", "yelp-sample", "yahoo", "amazon"],
+        help="Choose the dataset",
+    )
 
     args = parser.parse_args()
-    process_dataset(args.dataset)
+
+    if args.dataset == "yelp":
+        dataset_config = Yelp
+    elif args.dataset == "yelp-sample":
+        dataset_config = YelpSample
+    elif args.dataset == "yahoo":
+        dataset_config = Yahoo
+    elif args.dataset == "amazon":
+        dataset_config = Amazon
+    else:
+        # should not end there
+        exit()
+
+    args = parser.parse_args()
+    process_dataset(dataset_config.FULL_DATASET)
 
 
 if __name__ == "__main__":

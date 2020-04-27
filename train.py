@@ -24,6 +24,7 @@ from config import (
     WORD_HIDDEN_SIZE,
     SENT_HIDDEN_SIZE,
     MODEL_DIR,
+    LOG_DIR,
     Yelp,
     YelpSample,
     Yahoo,
@@ -104,7 +105,7 @@ def main():
         val_dataset, batch_size=BATCH_SIZE, shuffle=True
     )
 
-    logdir = Path(f"runs/{args.dataset}/{args.model}")
+    logdir = Path(f"{LOG_DIR}/{args.dataset}/{args.model}")
     logdir.mkdir(parents=True, exist_ok=True)
     writer = SummaryWriter(
         str(logdir / datetime.now().strftime("%Y%m%d-%H%M%S"))
@@ -188,9 +189,11 @@ def main():
     )
     writer.close()
 
+    modeldir = Path(MODEL_DIR)
+    modeldir.mkdir(parents=True, exist_ok=True)
     torch.save(
         model.state_dict(),
-        f"{MODEL_DIR}/{args.dataset}-{args.model}-{datetime.now().strftime('%Y%m%d-%H%M%S')}.pth",
+        f"{modeldir}/{args.dataset}-{args.model}-{datetime.now().strftime('%Y%m%d-%H%M%S')}.pth",
     )
 
 

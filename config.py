@@ -19,9 +19,11 @@ TQDM = True  # Display a progress bar in training and test
 DATASET_DIR = "data"
 EMBEDDING_DIR = "embedding"
 MODEL_DIR = "models"
+LOG_DIR = "runs"
 
 
 class Yelp:
+    FULL_DATASET = f"{DATASET_DIR}/yelp.csv"
     TRAIN_DATASET = f"{DATASET_DIR}/yelp_train.csv"
     VAL_DATASET = f"{DATASET_DIR}/yelp_val.csv"
     TRAINVAL_DATASET = f"{DATASET_DIR}/yelp_trainval.csv"
@@ -46,6 +48,7 @@ class Yelp:
 
 class YelpSample:
     "10% of the original Yelp dataset"
+    FULL_DATASET = f"{DATASET_DIR}/yelp_sample.csv"
     TRAIN_DATASET = f"{DATASET_DIR}/yelp_train_sample.csv"
     VAL_DATASET = f"{DATASET_DIR}/yelp_val_sample.csv"
     TEST_DATASET = f"{DATASET_DIR}/yelp_test.csv"
@@ -68,46 +71,48 @@ class YelpSample:
 
 
 class Yahoo:
+    FULL_DATASET = f"{DATASET_DIR}/yahoo.csv"
     TRAIN_DATASET = f"{DATASET_DIR}/yahoo_train.csv"
     VAL_DATASET = f"{DATASET_DIR}/yahoo_val.csv"
     TRAINVAL_DATASET = f"{DATASET_DIR}/yahoo_trainval.csv"
     TEST_DATASET = f"{DATASET_DIR}/yahoo_test.csv"
     EMBEDDING_FILE = f"{EMBEDDING_DIR}/yahoo.wv"
 
-    SENT_PER_DOC_80 = 12  # TODO update
-    SENT_PER_DOC_90 = 17  # TODO update
-    SENT_PER_DOC_95 = 22  # TODO update
-    SENT_PER_DOC_100 = 151  # TODO update
+    SENT_PER_DOC_80 = 8
+    SENT_PER_DOC_90 = 11
+    SENT_PER_DOC_95 = 16
+    SENT_PER_DOC_100 = 514
 
-    WORDS_PER_SENT_80 = 23  # TODO update
-    WORDS_PER_SENT_90 = 30  # TODO update
-    WORDS_PER_SENT_95 = 36  # TODO update
-    WORDS_PER_SENT_100 = 846  # TODO update
+    WORDS_PER_SENT_80 = 28
+    WORDS_PER_SENT_90 = 37
+    WORDS_PER_SENT_95 = 48
+    WORDS_PER_SENT_100 = 3977
 
-    WORDS_PER_DOC_80 = 208  # TODO update
-    WORDS_PER_DOC_90 = 294  # TODO update
-    WORDS_PER_DOC_95 = 389  # TODO update
-    WORDS_PER_DOC_100 = 1234  # TODO update
+    WORDS_PER_DOC_80 = 157
+    WORDS_PER_DOC_90 = 234
+    WORDS_PER_DOC_95 = 320
+    WORDS_PER_DOC_100 = 4001
 
 
 class Amazon:
+    FULL_DATASET = f"{DATASET_DIR}/amazon.csv"
     TRAIN_DATASET = f"{DATASET_DIR}/amazon_train.csv"
     VAL_DATASET = f"{DATASET_DIR}/amazon_val.csv"
     TRAINVAL_DATASET = f"{DATASET_DIR}/amazon_trainval.csv"
     TEST_DATASET = f"{DATASET_DIR}/amazon_test.csv"
     EMBEDDING_FILE = f"{EMBEDDING_DIR}/amazon.wv"
 
-    SENT_PER_DOC_80 = 12  # TODO update
-    SENT_PER_DOC_90 = 17  # TODO update
-    SENT_PER_DOC_95 = 22  # TODO update
-    SENT_PER_DOC_100 = 151  # TODO update
+    SENT_PER_DOC_80 = 10
+    SENT_PER_DOC_90 = 16
+    SENT_PER_DOC_95 = 23
+    SENT_PER_DOC_100 = 660
 
-    WORDS_PER_SENT_80 = 23  # TODO update
-    WORDS_PER_SENT_90 = 30  # TODO update
-    WORDS_PER_SENT_95 = 36  # TODO update
-    WORDS_PER_SENT_100 = 846  # TODO update
+    WORDS_PER_SENT_80 = 28
+    WORDS_PER_SENT_90 = 35
+    WORDS_PER_SENT_95 = 43
+    WORDS_PER_SENT_100 = 1981
 
-    WORDS_PER_DOC_80 = 208  # TODO update
-    WORDS_PER_DOC_90 = 294  # TODO update
-    WORDS_PER_DOC_95 = 389  # TODO update
-    WORDS_PER_DOC_100 = 1234  # TODO update
+    WORDS_PER_DOC_80 = 201
+    WORDS_PER_DOC_90 = 346
+    WORDS_PER_DOC_95 = 506
+    WORDS_PER_DOC_100 = 7485
