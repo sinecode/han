@@ -90,7 +90,7 @@ To train and test a BoW model (both with and without TFIDF), run
 
     $ python bow.py {yelp, yelp-sample, yahoo, amazon}
 
-A Stochastic Gradient Descent classifier is used together with a logistic regression loss. The 50,000 most frequent words from the training set are selected and the count of each word is used as features. A grid search cross-validation is used to find the best `alpha` parameter.
+A Stochastic Gradient Descent classifier is used together with a logistic regression loss. The 50,000 most frequent words from the training set are selected and the count of each word is used as features. A grid search cross-validation is used to find the best `alpha` parameter, that is the constant that multiplies the regularization term.
 
 ## Results
 
