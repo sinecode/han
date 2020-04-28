@@ -5,6 +5,7 @@ import pandas as pd
 import mimesis
 from tqdm import tqdm
 from nltk.tokenize import sent_tokenize, word_tokenize
+from sklearn.model_selection import train_test_split
 
 from config import DATASET_DIR
 
@@ -97,6 +98,18 @@ def create_synthetic_data(num_samples):
         frac=1
     )
     df.to_csv(f"{DATASET_DIR}/synthetic.csv", index=False)
+    train_df, testval_df = train_test_split(
+        df, test_size=0.2, stratify=df.label
+    )
+    val_df, test_df = train_test_split(
+        testval_df, test_size=0.5, stratify=testval_df.label
+    )
+    train_df.to_csv(f"{DATASET_DIR}/synthetic_train.csv", index=False)
+    train_df.append(val_df).to_csv(
+        f"{DATASET_DIR}/synthetic_trainval.csv", index=False
+    )
+    val_df.to_csv(f"{DATASET_DIR}/synthetic_val.csv", index=False)
+    test_df.to_csv(f"{DATASET_DIR}/synthetic_test.csv", index=False)
 
 
 if __name__ == "__main__":
