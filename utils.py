@@ -2,6 +2,7 @@ from typing import List, Iterable
 import random
 
 import pandas as pd
+import numpy as np
 import mimesis
 from tqdm import tqdm
 from nltk.tokenize import sent_tokenize, word_tokenize
@@ -41,28 +42,25 @@ def word_to_index(word, vocab, oov_token="UNK"):
         return vocab[oov_token].index
 
 
-def count_tokens(documents: Iterable[str], verbose=False):
-    """Return three lists:
-
-    - for each document, the number of sentences
-    - for each sentence, the number of tokens
-    - for each document, the number of tokens
-
-    >>> count_tokens(["First document. First document again", "Second doc."])
-    ([2, 1], [3, 3, 3], [6, 3])
-    """
+def get_percentiles(documents: Iterable[str], verbose=False):
+    "Return the 0.5, 0.8, 0.9, 0.95 and 1.0 percentiles"
     sent_per_doc = []
-    tokens_per_sent = []
-    tokens_per_doc = []
+    words_per_sent = []
+    words_per_doc = []
     for doc in tqdm(documents, total=len(documents), disable=(not verbose)):
         tokenized_doc = sent_word_tokenize(doc)
         sent_per_doc.append(len(tokenized_doc))
-        tokens = 0
+        words = 0
         for sent in tokenized_doc:
-            tokens_per_sent.append(len(sent))
-            tokens += len(sent)
-        tokens_per_doc.append(tokens)
-    return sent_per_doc, tokens_per_sent, tokens_per_doc
+            words_per_sent.append(len(sent))
+            words += len(sent)
+        words_per_doc.append(words)
+    for perc in (50, 80, 90, 95, 100):
+        print(f"{perc = }")
+        print(f"Sentences per document: {np.percentile(sent_per_doc, perc)}")
+        print(f"Words per sentence: {np.percentile(words_per_sent, perc)}")
+        print(f"Words per document: {np.percentile(words_per_doc, perc)}")
+        print("=========================================")
 
 
 def _generate_doc(label, provider, keywords):
