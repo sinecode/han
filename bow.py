@@ -7,7 +7,7 @@ from sklearn.feature_extraction.text import CountVectorizer, TfidfVectorizer
 from sklearn.preprocessing import MaxAbsScaler
 from sklearn.linear_model import SGDClassifier
 
-from config import Yelp, YelpSample, Yahoo, Amazon
+from config import Yelp, YelpSample, Yahoo, Amazon, Synthetic
 
 
 def run_experiment(vectorizer, text_train, y_train, text_test, y_test):
@@ -61,7 +61,7 @@ def main():
     )
     parser.add_argument(
         "dataset",
-        choices=["yelp", "yelp-sample", "yahoo", "amazon"],
+        choices=["yelp", "yelp-sample", "yahoo", "amazon", "synthetic"],
         help="Choose the dataset",
     )
 
@@ -75,6 +75,8 @@ def main():
         dataset_config = Yahoo
     elif args.dataset == "amazon":
         dataset_config = Amazon
+    elif args.dataset == "synthetic":
+        dataset_config = Synthetic
     else:
         # should not end there
         exit()
