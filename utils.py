@@ -1,7 +1,12 @@
 from typing import List, Iterable
+import random
 
+import pandas as pd
+import mimesis
 from tqdm import tqdm
 from nltk.tokenize import sent_tokenize, word_tokenize
+
+from config import DATASET_DIR
 
 
 def tokenize(doc: str) -> List[str]:
@@ -57,6 +62,41 @@ def count_tokens(documents: Iterable[str], verbose=False):
             tokens += len(sent)
         tokens_per_doc.append(tokens)
     return sent_per_doc, tokens_per_sent, tokens_per_doc
+
+
+def _generate_doc(label, provider, keywords):
+    "Generate a random document containing a sentence with a keyword"
+    num_sentences = int(random.lognormvariate(2, 0.3))
+    sentences = [provider.sentence() for _ in range(num_sentences)]
+    idx = random.randint(0, len(sentences) - 1)
+    tokens = word_tokenize(sentences[idx])
+    # insert a keyword in a random position within the sentence
+    # (excluding the last position because it contains the dot)
+    tokens.insert(
+        random.randint(0, len(tokens) - 1), random.choice(keywords[label])
+    )
+    sentences[idx] = " ".join(tokens)
+    return " ".join(sentences)
+
+
+def create_synthetic_data(num_samples):
+    keywords = {
+        0: ["bad", "worst", "dirty", "irritating", "disgusting"],
+        1: ["vague", "vain", "untouchable", "selfish", "rude"],
+        2: ["perverse", "possessive", "arrogant", "cruel", "calm"],
+        3: ["clever", "comfortable", "creative", "clean", "gentle"],
+        4: ["nice", "fantastic", "good", "modern", "quite"],
+    }
+    p = mimesis.Text()
+    data = [
+        (label, _generate_doc(label, p, keywords))
+        for label in keywords
+        for _ in tqdm(range(num_samples // len(keywords)))
+    ]
+    df = pd.DataFrame.from_records(data, columns=["label", "text"]).sample(
+        frac=1
+    )
+    df.to_csv(f"{DATASET_DIR}/synthetic.csv", index=False)
 
 
 if __name__ == "__main__":
