@@ -116,3 +116,27 @@ class Amazon:
     WORDS_PER_DOC_90 = 346
     WORDS_PER_DOC_95 = 506
     WORDS_PER_DOC_100 = 7485
+
+
+class Synthetic:
+    FULL_DATASET = f"{DATASET_DIR}/synthetic.csv"
+    TRAIN_DATASET = f"{DATASET_DIR}/synthetic_train.csv"
+    VAL_DATASET = f"{DATASET_DIR}/synthetic_val.csv"
+    TRAINVAL_DATASET = f"{DATASET_DIR}/synthetic_trainval.csv"
+    TEST_DATASET = f"{DATASET_DIR}/synthetic_test.csv"
+    EMBEDDING_FILE = f"{EMBEDDING_DIR}/synthetic.wv"
+
+    SENT_PER_DOC_80 = 9
+    SENT_PER_DOC_90 = 10
+    SENT_PER_DOC_95 = 12
+    SENT_PER_DOC_100 = 17
+
+    WORDS_PER_SENT_80 = 19
+    WORDS_PER_SENT_90 = 22
+    WORDS_PER_SENT_95 = 24
+    WORDS_PER_SENT_100 = 29
+
+    WORDS_PER_DOC_80 = 123
+    WORDS_PER_DOC_90 = 144
+    WORDS_PER_DOC_95 = 163
+    WORDS_PER_DOC_100 = 270
