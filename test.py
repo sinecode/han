@@ -94,7 +94,7 @@ def main():
 
     criterion = torch.nn.NLLLoss().to(DEVICE)
     loss, acc = test_func(model, test_data_loader, criterion)
-    print(f"Loss: {loss:.4f}, Accuracy {acc * 100:.1f}%")
+    print(f"Loss: {loss:.4f}, Accuracy: {acc * 100:.1f}%")
 
 
 def test_func(model, data_loader, criterion):

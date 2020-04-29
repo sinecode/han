@@ -185,10 +185,10 @@ def main():
 
     writer.add_text(
         "Hyperparameters",
-        f"Batch size = {BATCH_SIZE}; "
-        f"Learning rate = {LEARNING_RATE}; "
-        f"Momentum = {MOMENTUM}; "
-        f"Patience = {PATIENCE}",
+        f"{BATCH_SIZE = }; "
+        f"{LEARNING_RATE = }; "
+        f"{MOMENTUM = }; "
+        f"{PATIENCE = }",
     )
     writer.close()
 

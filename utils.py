@@ -56,7 +56,7 @@ def get_percentiles(documents: Iterable[str], verbose=False):
             words += len(sent)
         words_per_doc.append(words)
     for perc in (50, 80, 90, 95, 100):
-        print(f"perc = {perc}")
+        print(f"{perc = }")
         print(f"Sentences per document: {np.percentile(sent_per_doc, perc)}")
         print(f"Words per sentence: {np.percentile(words_per_sent, perc)}")
         print(f"Words per document: {np.percentile(words_per_doc, perc)}")
