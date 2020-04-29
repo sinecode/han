@@ -57,6 +57,11 @@ if __name__ == "__main__":
         # should not end there
         exit()
 
-    dataset = pd.read_csv(dataset_config.TRAINVAL_DATASET).fillna("")
+    dataset = pd.concat(
+        [
+            pd.read_csv(dataset_config.TRAIN_DATASET).fillna(""),
+            pd.read_csv(dataset_config.VAL_DATASET).fillna(""),
+        ]
+    ).sample(frac=1)
     model = train_word2vec_model(dataset, EMBEDDING_SIZE)
     model.wv.save(dataset_config.EMBEDDING_FILE)
