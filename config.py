@@ -14,7 +14,6 @@ SENT_HIDDEN_SIZE = 50
 
 # Others
 DEVICE = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-# DEVICE = "cpu"
 TQDM = True  # Display a progress bar in training and test
 DATASET_DIR = "data"
 EMBEDDING_DIR = "embedding"
@@ -26,7 +25,6 @@ class Yelp:
     FULL_DATASET = f"{DATASET_DIR}/yelp.csv"
     TRAIN_DATASET = f"{DATASET_DIR}/yelp_train.csv"
     VAL_DATASET = f"{DATASET_DIR}/yelp_val.csv"
-    TRAINVAL_DATASET = f"{DATASET_DIR}/yelp_trainval.csv"
     TEST_DATASET = f"{DATASET_DIR}/yelp_test.csv"
     EMBEDDING_FILE = f"{EMBEDDING_DIR}/yelp.wv"
 
@@ -74,7 +72,6 @@ class Yahoo:
     FULL_DATASET = f"{DATASET_DIR}/yahoo.csv"
     TRAIN_DATASET = f"{DATASET_DIR}/yahoo_train.csv"
     VAL_DATASET = f"{DATASET_DIR}/yahoo_val.csv"
-    TRAINVAL_DATASET = f"{DATASET_DIR}/yahoo_trainval.csv"
     TEST_DATASET = f"{DATASET_DIR}/yahoo_test.csv"
     EMBEDDING_FILE = f"{EMBEDDING_DIR}/yahoo.wv"
 
@@ -98,7 +95,6 @@ class Amazon:
     FULL_DATASET = f"{DATASET_DIR}/amazon.csv"
     TRAIN_DATASET = f"{DATASET_DIR}/amazon_train.csv"
     VAL_DATASET = f"{DATASET_DIR}/amazon_val.csv"
-    TRAINVAL_DATASET = f"{DATASET_DIR}/amazon_trainval.csv"
     TEST_DATASET = f"{DATASET_DIR}/amazon_test.csv"
     EMBEDDING_FILE = f"{EMBEDDING_DIR}/amazon.wv"
 
@@ -116,3 +112,26 @@ class Amazon:
     WORDS_PER_DOC_90 = 346
     WORDS_PER_DOC_95 = 506
     WORDS_PER_DOC_100 = 7485
+
+
+class Synthetic:
+    FULL_DATASET = f"{DATASET_DIR}/synthetic.csv"
+    TRAIN_DATASET = f"{DATASET_DIR}/synthetic_train.csv"
+    VAL_DATASET = f"{DATASET_DIR}/synthetic_val.csv"
+    TEST_DATASET = f"{DATASET_DIR}/synthetic_test.csv"
+    EMBEDDING_FILE = f"{EMBEDDING_DIR}/synthetic.wv"
+
+    SENT_PER_DOC_80 = 9
+    SENT_PER_DOC_90 = 10
+    SENT_PER_DOC_95 = 12
+    SENT_PER_DOC_100 = 17
+
+    WORDS_PER_SENT_80 = 19
+    WORDS_PER_SENT_90 = 22
+    WORDS_PER_SENT_95 = 24
+    WORDS_PER_SENT_100 = 29
+
+    WORDS_PER_DOC_80 = 123
+    WORDS_PER_DOC_90 = 144
+    WORDS_PER_DOC_95 = 163
+    WORDS_PER_DOC_100 = 270

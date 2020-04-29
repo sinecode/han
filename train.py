@@ -29,6 +29,7 @@ from config import (
     YelpSample,
     Yahoo,
     Amazon,
+    Synthetic,
 )
 
 
@@ -38,7 +39,7 @@ def main():
     )
     parser.add_argument(
         "dataset",
-        choices=["yelp", "yelp-sample", "yahoo", "amazon"],
+        choices=["yelp", "yelp-sample", "yahoo", "amazon", "synthetic"],
         help="Choose the dataset",
     )
     parser.add_argument(
@@ -55,6 +56,8 @@ def main():
         dataset_config = Yahoo
     elif args.dataset == "amazon":
         dataset_config = Amazon
+    elif args.dataset == "synthetic":
+        dataset_config = Synthetic
     else:
         # should not end there
         exit()
@@ -182,10 +185,10 @@ def main():
 
     writer.add_text(
         "Hyperparameters",
-        f"Batch size = {BATCH_SIZE}; "
-        f"Learning rate = {LEARNING_RATE}; "
-        f"Momentum = {MOMENTUM}; "
-        f"Patience = {PATIENCE}",
+        f"{BATCH_SIZE = }; "
+        f"{LEARNING_RATE = }; "
+        f"{MOMENTUM = }; "
+        f"{PATIENCE = }",
     )
     writer.close()
 
