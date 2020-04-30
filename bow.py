@@ -7,7 +7,7 @@ from sklearn.feature_extraction.text import CountVectorizer, TfidfVectorizer
 from sklearn.preprocessing import MaxAbsScaler
 from sklearn.linear_model import SGDClassifier
 
-from config import Yelp, YelpSample, Yahoo, Amazon, Synthetic
+from config import Yelp, Yahoo, Amazon, Synthetic
 
 
 def run_experiment(vectorizer, text_train, y_train, text_test, y_test):
@@ -29,12 +29,13 @@ def run_experiment(vectorizer, text_train, y_train, text_test, y_test):
     return grid.score(text_test, y_test)
 
 
-def process_dataset(csv_file):
-    print(f"Processing {csv_file}")
-    print("")
-    df = pd.read_csv(csv_file).fillna("")
+def process_dataset(dataset):
     text_train, text_test, y_train, y_test = train_test_split(
-        df.text, df.label, test_size=0.1, stratify=df.label, random_state=20,
+        dataset.text,
+        dataset.label,
+        test_size=0.1,
+        stratify=dataset.label,
+        random_state=20,
     )
     accuracy = run_experiment(
         CountVectorizer(max_features=50_000),
@@ -69,8 +70,6 @@ def main():
 
     if args.dataset == "yelp":
         dataset_config = Yelp
-    elif args.dataset == "yelp-sample":
-        dataset_config = YelpSample
     elif args.dataset == "yahoo":
         dataset_config = Yahoo
     elif args.dataset == "amazon":
@@ -82,7 +81,15 @@ def main():
         exit()
 
     args = parser.parse_args()
-    process_dataset(dataset_config.FULL_DATASET)
+
+    dataset = pd.concat(
+        [
+            pd.read_csv(dataset_config.TRAIN_DATASET).fillna(""),
+            pd.read_csv(dataset_config.VAL_DATASET).fillna(""),
+            pd.read_csv(dataset_config.TEST_DATASET).fillna(""),
+        ]
+    )
+    process_dataset(dataset)
 
 
 if __name__ == "__main__":
