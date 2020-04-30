@@ -88,7 +88,6 @@ class Amazon:
 
 
 class Synthetic:
-    FULL_DATASET = f"{DATASET_DIR}/synthetic.csv"
     TRAIN_DATASET = f"{DATASET_DIR}/synthetic_train.csv"
     VAL_DATASET = f"{DATASET_DIR}/synthetic_val.csv"
     TEST_DATASET = f"{DATASET_DIR}/synthetic_test.csv"
