@@ -12,7 +12,7 @@ I wasn't able to find the exactly datasets of the paper, so I have created three
 
 |  **Dataset**  | **Classes** | **Documents** |
 |---------------|-------------|---------------|
-|     Yelp      |      5      |   1,569,000   |
+|     Yelp      |      5      |   700,000     |
 | Yahoo Answer  |      10     |   1,450,000   |
 | Amazon review |      5      |   3,650,000   |
 

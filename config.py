@@ -22,7 +22,6 @@ LOG_DIR = "runs"
 
 
 class Yelp:
-    FULL_DATASET = f"{DATASET_DIR}/yelp.csv"
     TRAIN_DATASET = f"{DATASET_DIR}/yelp_train.csv"
     VAL_DATASET = f"{DATASET_DIR}/yelp_val.csv"
     TEST_DATASET = f"{DATASET_DIR}/yelp_test.csv"
@@ -44,32 +43,7 @@ class Yelp:
     WORDS_PER_DOC_100 = 1234
 
 
-class YelpSample:
-    "10% of the original Yelp dataset"
-    FULL_DATASET = f"{DATASET_DIR}/yelp_sample.csv"
-    TRAIN_DATASET = f"{DATASET_DIR}/yelp_train_sample.csv"
-    VAL_DATASET = f"{DATASET_DIR}/yelp_val_sample.csv"
-    TEST_DATASET = f"{DATASET_DIR}/yelp_test.csv"
-    EMBEDDING_FILE = Yelp.EMBEDDING_FILE
-
-    SENT_PER_DOC_80 = Yelp.SENT_PER_DOC_80
-    SENT_PER_DOC_90 = Yelp.SENT_PER_DOC_90
-    SENT_PER_DOC_95 = Yelp.SENT_PER_DOC_95
-    SENT_PER_DOC_100 = Yelp.SENT_PER_DOC_100
-
-    WORDS_PER_SENT_80 = Yelp.WORDS_PER_SENT_80
-    WORDS_PER_SENT_90 = Yelp.WORDS_PER_SENT_90
-    WORDS_PER_SENT_95 = Yelp.WORDS_PER_SENT_95
-    WORDS_PER_SENT_100 = Yelp.WORDS_PER_SENT_100
-
-    WORDS_PER_DOC_80 = Yelp.WORDS_PER_DOC_80
-    WORDS_PER_DOC_90 = Yelp.WORDS_PER_DOC_90
-    WORDS_PER_DOC_95 = Yelp.WORDS_PER_DOC_95
-    WORDS_PER_DOC_100 = Yelp.WORDS_PER_DOC_100
-
-
 class Yahoo:
-    FULL_DATASET = f"{DATASET_DIR}/yahoo.csv"
     TRAIN_DATASET = f"{DATASET_DIR}/yahoo_train.csv"
     VAL_DATASET = f"{DATASET_DIR}/yahoo_val.csv"
     TEST_DATASET = f"{DATASET_DIR}/yahoo_test.csv"
@@ -92,7 +66,6 @@ class Yahoo:
 
 
 class Amazon:
-    FULL_DATASET = f"{DATASET_DIR}/amazon.csv"
     TRAIN_DATASET = f"{DATASET_DIR}/amazon_train.csv"
     VAL_DATASET = f"{DATASET_DIR}/amazon_val.csv"
     TEST_DATASET = f"{DATASET_DIR}/amazon_test.csv"
