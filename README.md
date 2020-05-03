@@ -4,7 +4,7 @@ Replication of some of the experiments reported in:
 
 [Yang, Zichao, et al. "Hierarchical attention networks for document classification." Proceedings of the 2016 conference of the North American chapter of the association for computational linguistics: human language technologies. 2016.](https://www.cs.cmu.edu/~./hovy/papers/16HLT-hierarchical-attention-networks.pdf)
 
-The main goal of these experiments is to compare the performances of a Hierarchical Attention Network with a Non-Hierarchical Attention and a classic BoW approach.
+The main goal of these experiments is to compare the performances of a Hierarchical Attention Network with a Flat Attention and a classic BoW approach.
 
 ## Datasets
 
@@ -21,68 +21,6 @@ As reported in the paper, 80% of the data is used for training, 10% for validati
 ### Dataset statistics
 
 In this section some statistics about the number of sentences and words in each document are reported. This kind of information are useful with the padding of the features. These data are obtained on the training and the validation set.
-
-#### Yelp
-
-* Number of sentences per document:
-
-| **Percentile** | 50% | 80% | 90% | 95% | 100% |
-|----------------|-----|-----|-----|-----|------|
-| **Value**      | 7   | 12  | 17  | 22  | 151  |
-
-
-* Number of words per sentence:
-
-| **Percentile** | 50% | 80% | 90% | 95% | 100% |
-|----------------|-----|-----|-----|-----|------|
-| **Value**      | 14  | 23  | 30  | 36  | 846  |
-
-* Number of words per document:
-
-| **Percentile** | 50% | 80% | 90% | 95% | 100% |
-|----------------|-----|-----|-----|-----|------|
-| **Value**      | 102 | 208 | 294 | 389 | 1234 |
-
-#### Yahoo
-
-* Number of sentences per document:
-
-| **Percentile** | 50% | 80% | 90% | 95% | 100% |
-|----------------|-----|-----|-----|-----|------|
-| **Value**      | 4   | 8   | 11  | 16  | 514  |
-
-* Number of words per sentence:
-
-| **Percentile** | 50% | 80% | 90% | 95% | 100%  |
-|----------------|-----|-----|-----|-----|-------|
-| **Value**      | 15  | 28  | 37  | 48  | 3977  |
-
-* Number of words per document:
-
-| **Percentile** | 50% | 80% | 90% | 95% | 100% |
-|----------------|-----|-----|-----|-----|------|
-| **Value**      | 71  | 157 | 234 | 320 | 4001 |
-
-#### Amazon
-
-* Number of sentences per document:
-
-| **Percentile** | 50% | 80% | 90% | 95% | 100% |
-|----------------|-----|-----|-----|-----|------|
-| **Value**      | 4   | 10  | 16  | 23  | 660  |
-
-* Number of words per sentence:
-
-| **Percentile** | 50% | 80% | 90% | 95% | 100%  |
-|----------------|-----|-----|-----|-----|-------|
-| **Value**      | 17  | 28  | 35  | 43  | 1981  |
-
-* Number of words per document:
-
-| **Percentile** | 50% | 80% | 90% | 95% | 100% |
-|----------------|-----|-----|-----|-----|------|
-| **Value**      | 62  | 201 | 346 | 506 | 7485 |
-
 
 ## Bag-Of-Words
 
@@ -106,11 +44,11 @@ The words that appear less then five times in the whole dataset are substituted 
 
 ## Attention models
 
-In addition to the model proposed in the paper (Hierarchical Attention Network or HAN), I have implemented a Word-level Attention Network (WAN), that is the same model but with only one attention layer, without taking into account the different sentences of the document.
+In addition to the model proposed in the paper (Hierarchical Attention Network or HAN), I have implemented a Flat Attention Network (FAN), that is the same model but with only one attention layer, without taking into account the different sentences of the document.
 
 With the script `train.py` is possible to train a WAN or HAN model:
 
-    $ python train.py {yelp,yelp-sample,yahoo,amazon} {wan,han}
+    $ python train.py {yelp,yelp-sample,yahoo,amazon} {fan,han}
 
 The trained model will be saved into a directory called `models` and the logging of the training process will be stored into a directory called `runs`. The plots of the training phase can be viewed with Tensorboard:
 
@@ -118,18 +56,18 @@ The trained model will be saved into a directory called `models` and the logging
 
 To test a model, run
 
-    $ python test.py {yelp,yelp-sample,yahoo,amazon} {wan,han} <model_file>
+    $ python test.py {yelp,yelp-sample,yahoo,amazon} {fan,han} <model_file>
 
 ## Results
 
 Document classification, in percentage
 
-|               | **Yelp** | **Yahoo** | **Amazon** |
-|---------------|----------|-----------|------------|
-| **BoW**       |   61.3   |   66.9    |    52.2    |
-| **BoW-TFIDF** |   61.3   |   66.9    |    52.2    |
-| **WAN**       |   67.0   |   73.8    |    60.4    |
-| **HAN**       |   67.3   |   73.9    |    60.9    |
+|                           | **Yelp** | **Yahoo** | **Amazon** |
+|---------------------------|----------|-----------|------------|
+| **BoW**                   |   61.3   |   66.9    |    52.2    |
+| **BoW-TFIDF**             |   61.3   |   66.9    |    52.2    |
+| **Flat Attention**        |   67.0   |   73.8    |    60.4    |
+| **Hierachical Attention** |   67.3   |   73.9    |    60.9    |
 
 ## Notes
 

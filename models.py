@@ -59,13 +59,13 @@ class Attention(nn.Module):
         return weighted_sum
 
 
-class Wan(nn.Module):
-    "Word-level Attention Network"
+class Fan(nn.Module):
+    "Flat Attention Network"
 
     def __init__(
         self, embedding_matrix, word_hidden_size, num_classes, batch_size
     ):
-        super(Wan, self).__init__()
+        super(Fan, self).__init__()
         self.word_hidden_size = word_hidden_size
         self.word_encoder = WordEncoder(embedding_matrix, word_hidden_size)
         self.word_attention = Attention(word_hidden_size * BIDIRECTIONAL)

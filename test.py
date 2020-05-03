@@ -5,8 +5,8 @@ import pandas as pd
 from gensim.models import KeyedVectors
 from tqdm import tqdm
 
-from dataset import SentWordDataset, WordDataset
-from models import Wan, Han
+from dataset import HierarchicalDataset, FlatDataset
+from models import Fan, Han
 from config import (
     BATCH_SIZE,
     PADDING,
@@ -29,7 +29,9 @@ def main():
         help="Choose the dataset",
     )
     parser.add_argument(
-        "model", choices=["wan", "han"], help="Choose the model to be tested",
+        "model",
+        choices=["fan", "han"],
+        help="Choose the model to be tested (flat or hierarchical",
     )
     parser.add_argument(
         "model_file", help="File where the trained models is stored",
@@ -54,15 +56,15 @@ def main():
     test_df = pd.read_csv(dataset_config.TEST_DATASET).fillna("")
     test_documents = test_df.text
     test_labels = test_df.label
-    if args.model == "wan":
-        test_dataset = WordDataset(
+    if args.model == "fan":
+        test_dataset = FlatDataset(
             test_documents,
             test_labels,
             wv.vocab,
             dataset_config.WORDS_PER_DOC[PADDING],
         )
     else:
-        test_dataset = SentWordDataset(
+        test_dataset = HierarchicalDataset(
             test_documents,
             test_labels,
             wv.vocab,
@@ -73,8 +75,8 @@ def main():
         test_dataset, batch_size=BATCH_SIZE, shuffle=True
     )
 
-    if args.model == "wan":
-        model = Wan(
+    if args.model == "fan":
+        model = Fan(
             embedding_matrix=wv.vectors,
             word_hidden_size=WORD_HIDDEN_SIZE,
             num_classes=len(test_labels.unique()),

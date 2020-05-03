@@ -10,8 +10,8 @@ from gensim.models import KeyedVectors
 import pandas as pd
 from tqdm import tqdm
 
-from dataset import SentWordDataset, WordDataset
-from models import Han, Wan
+from dataset import HierarchicalDataset, FlatDataset
+from models import Han, Fan
 from test import test_func
 from config import (
     BATCH_SIZE,
@@ -35,7 +35,7 @@ from config import (
 
 def main():
     parser = argparse.ArgumentParser(
-        description="Train the WAN or the HAN model"
+        description="Train the FAN or the HAN model"
     )
     parser.add_argument(
         "dataset",
@@ -43,7 +43,9 @@ def main():
         help="Choose the dataset",
     )
     parser.add_argument(
-        "model", choices=["wan", "han"], help="Choose the model to be trained",
+        "model",
+        choices=["fan", "han"],
+        help="Choose the model to be trained (flat or hierarchical)",
     )
 
     args = parser.parse_args()
@@ -65,15 +67,15 @@ def main():
     train_df = pd.read_csv(dataset_config.TRAIN_DATASET).fillna("")
     train_documents = train_df.text
     train_labels = train_df.label
-    if args.model == "wan":
-        train_dataset = WordDataset(
+    if args.model == "fan":
+        train_dataset = FlatDataset(
             train_documents,
             train_labels,
             wv.vocab,
             dataset_config.WORDS_PER_DOC[PADDING],
         )
     else:
-        train_dataset = SentWordDataset(
+        train_dataset = HierarchicalDataset(
             train_documents,
             train_labels,
             wv.vocab,
@@ -87,15 +89,15 @@ def main():
     val_df = pd.read_csv(dataset_config.VAL_DATASET).fillna("")
     val_documents = val_df.text
     val_labels = val_df.label
-    if args.model == "wan":
-        val_dataset = WordDataset(
+    if args.model == "fan":
+        val_dataset = FlatDataset(
             val_documents,
             val_labels,
             wv.vocab,
             dataset_config.WORDS_PER_DOC[PADDING],
         )
     else:
-        val_dataset = SentWordDataset(
+        val_dataset = HierarchicalDataset(
             val_documents,
             val_labels,
             wv.vocab,
@@ -112,8 +114,8 @@ def main():
         str(logdir / datetime.now().strftime("%Y%m%d-%H%M%S"))
     )
 
-    if args.model == "wan":
-        model = Wan(
+    if args.model == "fan":
+        model = Fan(
             embedding_matrix=wv.vectors,
             word_hidden_size=WORD_HIDDEN_SIZE,
             num_classes=len(train_labels.unique()),

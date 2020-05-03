@@ -1,4 +1,4 @@
-from typing import List, Iterable
+from typing import Iterable
 import random
 
 import pandas as pd
@@ -11,44 +11,13 @@ from sklearn.model_selection import train_test_split
 from config import DATASET_DIR
 
 
-def tokenize(doc: str) -> List[str]:
-    """
-    Tokenize a document (a regular Python string) into tokens.
-    The string is converted to lowercase before tokenization.
-
-    >>> tokenize("Hello There! General Kenobi!")
-    ['hello', 'there', '!', 'general', 'kenobi', '!']
-    """
-    return word_tokenize(doc.lower())
-
-
-def sent_word_tokenize(doc: str) -> List[List[str]]:
-    """
-    Tokenize a document (a regular Python string) into sentences and words.
-    The string is converted to lowercase before tokenization.
-
-    >>> sent_word_tokenize("Hello There! General Kenobi!")
-    [['hello', 'there', '!'], ['general', 'kenobi', '!']]
-    """
-    doc = doc.lower()
-    return [word_tokenize(sentence) for sentence in sent_tokenize(doc)]
-
-
-def word_to_index(word, vocab, oov_token="UNK"):
-    "Convert a word into an index according to the input vocabulary"
-    try:
-        return vocab[word].index
-    except KeyError:
-        return vocab[oov_token].index
-
-
 def get_percentiles(documents: Iterable[str], verbose=False):
     "Return the 0.5, 0.8, 0.9, 0.95 and 1.0 percentiles"
     sent_per_doc = []
     words_per_sent = []
     words_per_doc = []
     for doc in tqdm(documents, total=len(documents), disable=(not verbose)):
-        tokenized_doc = sent_word_tokenize(doc)
+        tokenized_doc = [word_tokenize(sent) for sent in sent_tokenize(doc)]
         sent_per_doc.append(len(tokenized_doc))
         words = 0
         for sent in tokenized_doc:
