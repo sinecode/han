@@ -19,6 +19,7 @@ from config import (
     LEARNING_RATE,
     MOMENTUM,
     PATIENCE,
+    PADDING,
     DEVICE,
     TQDM,
     WORD_HIDDEN_SIZE,
@@ -26,7 +27,6 @@ from config import (
     MODEL_DIR,
     LOG_DIR,
     Yelp,
-    YelpSample,
     Yahoo,
     Amazon,
     Synthetic,
@@ -39,7 +39,7 @@ def main():
     )
     parser.add_argument(
         "dataset",
-        choices=["yelp", "yelp-sample", "yahoo", "amazon", "synthetic"],
+        choices=["yelp", "yahoo", "amazon", "synthetic"],
         help="Choose the dataset",
     )
     parser.add_argument(
@@ -50,8 +50,6 @@ def main():
 
     if args.dataset == "yelp":
         dataset_config = Yelp
-    elif args.dataset == "yelp-sample":
-        dataset_config = YelpSample
     elif args.dataset == "yahoo":
         dataset_config = Yahoo
     elif args.dataset == "amazon":
@@ -72,15 +70,15 @@ def main():
             train_documents,
             train_labels,
             wv.vocab,
-            dataset_config.WORDS_PER_DOC_80,
+            dataset_config.WORDS_PER_DOC[PADDING],
         )
     else:
         train_dataset = SentWordDataset(
             train_documents,
             train_labels,
             wv.vocab,
-            dataset_config.SENT_PER_DOC_80,
-            dataset_config.WORDS_PER_SENT_80,
+            dataset_config.SENT_PER_DOC[PADDING],
+            dataset_config.WORDS_PER_SENT[PADDING],
         )
     train_data_loader = torch.utils.data.DataLoader(
         train_dataset, batch_size=BATCH_SIZE, shuffle=True
@@ -94,15 +92,15 @@ def main():
             val_documents,
             val_labels,
             wv.vocab,
-            dataset_config.WORDS_PER_DOC_80,
+            dataset_config.WORDS_PER_DOC[PADDING],
         )
     else:
         val_dataset = SentWordDataset(
             val_documents,
             val_labels,
             wv.vocab,
-            dataset_config.SENT_PER_DOC_80,
-            dataset_config.WORDS_PER_SENT_80,
+            dataset_config.SENT_PER_DOC[PADDING],
+            dataset_config.WORDS_PER_SENT[PADDING],
         )
     val_data_loader = torch.utils.data.DataLoader(
         val_dataset, batch_size=BATCH_SIZE, shuffle=True
@@ -185,10 +183,11 @@ def main():
 
     writer.add_text(
         "Hyperparameters",
-        f"{BATCH_SIZE = }; "
-        f"{LEARNING_RATE = }; "
-        f"{MOMENTUM = }; "
-        f"{PATIENCE = }",
+        f"BATCH_SIZE = {BATCH_SIZE}; "
+        f"LEARNING_RATE = {LEARNING_RATE}; "
+        f"MOMENTUM = {MOMENTUM}; "
+        f"PATIENCE = {PATIENCE}; ",
+        f"PADDING = {PADDING}",
     )
     writer.close()
 

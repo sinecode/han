@@ -9,12 +9,12 @@ from dataset import SentWordDataset, WordDataset
 from models import Wan, Han
 from config import (
     BATCH_SIZE,
+    PADDING,
     DEVICE,
     TQDM,
     WORD_HIDDEN_SIZE,
     SENT_HIDDEN_SIZE,
     Yelp,
-    YelpSample,
     Yahoo,
     Amazon,
     Synthetic,
@@ -25,7 +25,7 @@ def main():
     parser = argparse.ArgumentParser(description="Test the model")
     parser.add_argument(
         "dataset",
-        choices=["yelp", "yelp-sample", "yahoo", "amazon", "synthetic"],
+        choices=["yelp", "yahoo", "amazon", "synthetic"],
         help="Choose the dataset",
     )
     parser.add_argument(
@@ -39,8 +39,6 @@ def main():
 
     if args.dataset == "yelp":
         dataset_config = Yelp
-    elif args.dataset == "yelp-sample":
-        dataset_config = YelpSample
     elif args.dataset == "yahoo":
         dataset_config = Yahoo
     elif args.dataset == "amazon":
@@ -61,15 +59,15 @@ def main():
             test_documents,
             test_labels,
             wv.vocab,
-            dataset_config.WORDS_PER_DOC_80,
+            dataset_config.WORDS_PER_DOC[PADDING],
         )
     else:
         test_dataset = SentWordDataset(
             test_documents,
             test_labels,
             wv.vocab,
-            dataset_config.SENT_PER_DOC_80,
-            dataset_config.WORDS_PER_SENT_80,
+            dataset_config.SENT_PER_DOC[PADDING],
+            dataset_config.WORDS_PER_SENT[PADDING],
         )
     test_data_loader = torch.utils.data.DataLoader(
         test_dataset, batch_size=BATCH_SIZE, shuffle=True

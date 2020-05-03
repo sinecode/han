@@ -11,6 +11,7 @@ EMBEDDING_SIZE = 200
 BIDIRECTIONAL = 2  # set to 1 (not bidirectional) or 2 (bidirectional)
 WORD_HIDDEN_SIZE = 50
 SENT_HIDDEN_SIZE = 50
+PADDING = 90  # percentage of the documents to cover with the padding
 
 # Others
 DEVICE = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
@@ -27,20 +28,9 @@ class Yelp:
     TEST_DATASET = f"{DATASET_DIR}/yelp_test.csv"
     EMBEDDING_FILE = f"{EMBEDDING_DIR}/yelp.wv"
 
-    SENT_PER_DOC_80 = 12
-    SENT_PER_DOC_90 = 17
-    SENT_PER_DOC_95 = 22
-    SENT_PER_DOC_100 = 151
-
-    WORDS_PER_SENT_80 = 23
-    WORDS_PER_SENT_90 = 30
-    WORDS_PER_SENT_95 = 36
-    WORDS_PER_SENT_100 = 846
-
-    WORDS_PER_DOC_80 = 208
-    WORDS_PER_DOC_90 = 294
-    WORDS_PER_DOC_95 = 389
-    WORDS_PER_DOC_100 = 1234
+    SENT_PER_DOC = {80: 12, 90: 17, 95: 22, 100: 151}
+    WORDS_PER_SENT = {80: 26, 90: 34, 95: 43, 100: 996}
+    WORDS_PER_DOC = {80: 230, 90: 325, 95: 426, 100: 1221}
 
 
 class Yahoo:
@@ -49,20 +39,9 @@ class Yahoo:
     TEST_DATASET = f"{DATASET_DIR}/yahoo_test.csv"
     EMBEDDING_FILE = f"{EMBEDDING_DIR}/yahoo.wv"
 
-    SENT_PER_DOC_80 = 8
-    SENT_PER_DOC_90 = 11
-    SENT_PER_DOC_95 = 16
-    SENT_PER_DOC_100 = 514
-
-    WORDS_PER_SENT_80 = 28
-    WORDS_PER_SENT_90 = 37
-    WORDS_PER_SENT_95 = 48
-    WORDS_PER_SENT_100 = 3977
-
-    WORDS_PER_DOC_80 = 157
-    WORDS_PER_DOC_90 = 234
-    WORDS_PER_DOC_95 = 320
-    WORDS_PER_DOC_100 = 4001
+    SENT_PER_DOC = {80: 8, 90: 11, 95: 16, 100: 514}
+    WORDS_PER_SENT = {80: 28, 90: 37, 95: 48, 100: 3997}
+    WORDS_PER_DOC = {80: 157, 90: 234, 95: 320, 100: 4001}
 
 
 class Amazon:
@@ -71,20 +50,9 @@ class Amazon:
     TEST_DATASET = f"{DATASET_DIR}/amazon_test.csv"
     EMBEDDING_FILE = f"{EMBEDDING_DIR}/amazon.wv"
 
-    SENT_PER_DOC_80 = 10
-    SENT_PER_DOC_90 = 16
-    SENT_PER_DOC_95 = 23
-    SENT_PER_DOC_100 = 660
-
-    WORDS_PER_SENT_80 = 28
-    WORDS_PER_SENT_90 = 35
-    WORDS_PER_SENT_95 = 43
-    WORDS_PER_SENT_100 = 1981
-
-    WORDS_PER_DOC_80 = 201
-    WORDS_PER_DOC_90 = 346
-    WORDS_PER_DOC_95 = 506
-    WORDS_PER_DOC_100 = 7485
+    SENT_PER_DOC = {80: 10, 90: 16, 95: 23, 100: 660}
+    WORDS_PER_SENT = {80: 28, 90: 35, 95: 43, 100: 1981}
+    WORDS_PER_DOC = {80: 201, 90: 346, 95: 506, 100: 7485}
 
 
 class Synthetic:
@@ -93,17 +61,6 @@ class Synthetic:
     TEST_DATASET = f"{DATASET_DIR}/synthetic_test.csv"
     EMBEDDING_FILE = f"{EMBEDDING_DIR}/synthetic.wv"
 
-    SENT_PER_DOC_80 = 9
-    SENT_PER_DOC_90 = 10
-    SENT_PER_DOC_95 = 12
-    SENT_PER_DOC_100 = 17
-
-    WORDS_PER_SENT_80 = 19
-    WORDS_PER_SENT_90 = 22
-    WORDS_PER_SENT_95 = 24
-    WORDS_PER_SENT_100 = 29
-
-    WORDS_PER_DOC_80 = 123
-    WORDS_PER_DOC_90 = 144
-    WORDS_PER_DOC_95 = 163
-    WORDS_PER_DOC_100 = 270
+    SENT_PER_DOC = {80: 9, 90: 10, 95: 12, 100: 17}
+    WORDS_PER_SENT = {80: 19, 90: 22, 95: 24, 100: 29}
+    WORDS_PER_DOC = {80: 123, 90: 144, 95: 163, 100: 270}
