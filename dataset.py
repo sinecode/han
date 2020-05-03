@@ -72,14 +72,14 @@ class FlatDataset(torch.utils.data.Dataset):
         return label, padded_features
 
 
-class HierachicalDataset(FlatDataset):
+class HierarchicalDataset(FlatDataset):
     """
     Dataset where each document is tokenized on the fly.
     The tokenization is in sentences and words.
     """
 
     def __init__(self, documents, labels, vocab, sent_per_doc, words_per_sent):
-        super(HierachicalDataset, self).__init__(documents, labels, vocab, 0)
+        super(HierarchicalDataset, self).__init__(documents, labels, vocab, 0)
         self.sent_per_doc = sent_per_doc
         self.words_per_sent = words_per_sent
 

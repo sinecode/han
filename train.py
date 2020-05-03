@@ -142,6 +142,7 @@ def main():
     val_losses = []
     val_accs = []
     best_val_loss = 100_000
+    best_state_dict = model.state_dict()
     actual_patience = 0
     total_start_time = time.time()
     for epoch in range(1, EPOCHS + 1):
@@ -178,9 +179,11 @@ def main():
         # Early stopping with patience
         if val_loss < best_val_loss:
             best_val_loss = val_loss
+            best_state_dict = model.state_dict()
         else:
             actual_patience += 1
             if actual_patience == PATIENCE:
+                model.load_state_dict(best_state_dict)
                 break
 
     writer.add_text(
