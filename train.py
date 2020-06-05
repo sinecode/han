@@ -1,6 +1,4 @@
 import argparse
-import time
-from datetime import datetime
 from pathlib import Path
 from collections import deque
 
@@ -83,7 +81,7 @@ def main():
             dataset_config.WORDS_PER_SENT[PADDING],
         )
     train_data_loader = torch.utils.data.DataLoader(
-        train_dataset, batch_size=BATCH_SIZE, shuffle=True
+        train_dataset, batch_size=BATCH_SIZE, shuffle=True, num_workers=6,
     )
 
     val_df = pd.read_csv(dataset_config.VAL_DATASET).fillna("")
@@ -110,9 +108,7 @@ def main():
 
     logdir = Path(f"{LOG_DIR}/{args.dataset}/{args.model}")
     logdir.mkdir(parents=True, exist_ok=True)
-    writer = SummaryWriter(
-        str(logdir / datetime.now().strftime("%Y%m%d-%H%M%S"))
-    )
+    writer = SummaryWriter(str(logdir / f"{LEARNING_RATE}lr-{PADDING}pad"))
 
     if args.model == "fan":
         model = Fan(
@@ -141,13 +137,10 @@ def main():
     train_accs = []
     val_losses = []
     val_accs = []
-    best_val_loss = 100_000
+    best_val_loss = 1_000_000
     best_state_dict = model.state_dict()
     actual_patience = 0
-    total_start_time = time.time()
     for epoch in range(1, EPOCHS + 1):
-        start_time = time.time()
-
         train_loss, train_acc = train_func(
             model, train_data_loader, criterion, optimizer, writer
         )
@@ -157,19 +150,11 @@ def main():
         val_losses.append(val_loss)
         val_accs.append(val_acc)
 
-        secs = int(time.time() - start_time)
-        mins = secs // 60
-        secs = secs % 60
-        total_secs = int(time.time() - total_start_time)
-        total_mins = total_secs // 60
-        total_secs = total_secs % 60
+        print(f"Epoch {epoch}")
         print(
-            f"Epoch {epoch} | in {mins}m {secs}s, total {total_mins}m {total_secs}s"
+            f"  Train loss: {train_loss:.4}, Train acc: {train_acc * 100:.1f}%"
         )
-        print(
-            f"\tTrain loss: {train_loss:.4}, Train acc: {train_acc * 100:.1f}%"
-        )
-        print(f"\tVal loss: {val_loss:.4}, Val acc: {val_acc * 100:.1f}%")
+        print(f"  Val loss: {val_loss:.4}, Val acc: {val_acc * 100:.1f}%")
 
         writer.add_scalar("Train/Loss", train_loss, epoch)
         writer.add_scalar("Train/Accuracy", train_acc, epoch)
@@ -178,6 +163,7 @@ def main():
 
         # Early stopping with patience
         if val_loss < best_val_loss:
+            actual_patience = 0
             best_val_loss = val_loss
             best_state_dict = model.state_dict()
         else:
@@ -191,7 +177,7 @@ def main():
         f"BATCH_SIZE = {BATCH_SIZE}; "
         f"LEARNING_RATE = {LEARNING_RATE}; "
         f"MOMENTUM = {MOMENTUM}; "
-        f"PATIENCE = {PATIENCE}; ",
+        f"PATIENCE = {PATIENCE}; "
         f"PADDING = {PADDING}",
     )
     writer.close()
@@ -200,11 +186,11 @@ def main():
     modeldir.mkdir(parents=True, exist_ok=True)
     torch.save(
         model.state_dict(),
-        f"{modeldir}/{args.dataset}-{args.model}-{datetime.now().strftime('%Y%m%d-%H%M%S')}.pth",
+        f"{modeldir}/{args.dataset}-{args.model}-{LEARNING_RATE}lr-{PADDING}pad.pth",
     )
 
 
-def train_func(model, data_loader, criterion, optimizer, writer, last_val=20):
+def train_func(model, data_loader, criterion, optimizer, writer, last_val=50):
     """
     Train the model and return the training loss and accuracy
     of the `last_val` batches.
@@ -233,18 +219,18 @@ def train_func(model, data_loader, criterion, optimizer, writer, last_val=20):
             (predictions.argmax(1) == labels).sum().item() / batch_size
         )
 
-        if iteration % 1_000 == 999:
-            for param_name, param_value in zip(
-                model.state_dict(), model.parameters()
-            ):
-                if param_value.requires_grad:
-                    param_name = param_name.replace(".", "/")
-                    writer.add_histogram(
-                        param_name, param_value, iteration,
-                    )
-                    # writer.add_histogram(
-                    #    param_name + "/grad", param_value.grad, iteration,
-                    # )
+        # if iteration % 1_000 == 999:
+        #    for param_name, param_value in zip(
+        #        model.state_dict(), model.parameters()
+        #    ):
+        #        if param_value.requires_grad:
+        #            param_name = param_name.replace(".", "/")
+        #            writer.add_histogram(
+        #                param_name, param_value, iteration,
+        #            )
+        #            # writer.add_histogram(
+        #            #    param_name + "/grad", param_value.grad, iteration,
+        #            # )
     return sum(losses) / len(losses), sum(accs) / len(accs)
 
 

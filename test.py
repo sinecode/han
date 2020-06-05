@@ -61,18 +61,18 @@ def main():
             test_documents,
             test_labels,
             wv.vocab,
-            dataset_config.WORDS_PER_DOC[PADDING],
+            dataset_config.WORDS_PER_DOC[100],
         )
     else:
         test_dataset = HierarchicalDataset(
             test_documents,
             test_labels,
             wv.vocab,
-            dataset_config.SENT_PER_DOC[PADDING],
-            dataset_config.WORDS_PER_SENT[PADDING],
+            dataset_config.SENT_PER_DOC[100],
+            dataset_config.WORDS_PER_SENT[100],
         )
     test_data_loader = torch.utils.data.DataLoader(
-        test_dataset, batch_size=BATCH_SIZE, shuffle=True
+        test_dataset, batch_size=BATCH_SIZE, shuffle=True, num_workers=6
     )
 
     if args.model == "fan":
