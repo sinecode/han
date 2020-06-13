@@ -81,7 +81,7 @@ def main():
             dataset_config.WORDS_PER_SENT[PADDING],
         )
     train_data_loader = torch.utils.data.DataLoader(
-        train_dataset, batch_size=BATCH_SIZE, shuffle=True, num_workers=6,
+        train_dataset, batch_size=BATCH_SIZE, shuffle=True, num_workers=2,
     )
 
     val_df = pd.read_csv(dataset_config.VAL_DATASET).fillna("")
@@ -108,7 +108,7 @@ def main():
 
     logdir = Path(f"{LOG_DIR}/{args.dataset}/{args.model}")
     logdir.mkdir(parents=True, exist_ok=True)
-    writer = SummaryWriter(str(logdir / f"{LEARNING_RATE}lr-{PADDING}pad"))
+    writer = SummaryWriter(str(logdir / f"{PADDING}pad"))
 
     if args.model == "fan":
         model = Fan(
@@ -132,6 +132,9 @@ def main():
         lr=LEARNING_RATE,
         momentum=MOMENTUM,
     )
+    lr_scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(
+        optimizer, factor=0.1, patience=PATIENCE - 2, verbose=True,
+    )
 
     train_losses = []
     train_accs = []
@@ -146,6 +149,7 @@ def main():
         )
         train_losses.append(train_loss)
         train_accs.append(train_acc)
+
         val_loss, val_acc = test_func(model, val_data_loader, criterion)
         val_losses.append(val_loss)
         val_accs.append(val_acc)
@@ -156,10 +160,15 @@ def main():
         )
         print(f"  Val loss: {val_loss:.4}, Val acc: {val_acc * 100:.1f}%")
 
+        lr_scheduler.step(val_loss)
+
         writer.add_scalar("Train/Loss", train_loss, epoch)
         writer.add_scalar("Train/Accuracy", train_acc, epoch)
         writer.add_scalar("Validation/Loss", val_loss, epoch)
         writer.add_scalar("Validation/Accuracy", val_acc, epoch)
+        writer.add_scalar(
+            "Learning rate", optimizer.param_groups[0]["lr"], epoch
+        )
 
         # Early stopping with patience
         if val_loss < best_val_loss:
@@ -175,7 +184,6 @@ def main():
     writer.add_text(
         "Hyperparameters",
         f"BATCH_SIZE = {BATCH_SIZE}; "
-        f"LEARNING_RATE = {LEARNING_RATE}; "
         f"MOMENTUM = {MOMENTUM}; "
         f"PATIENCE = {PATIENCE}; "
         f"PADDING = {PADDING}",
@@ -186,7 +194,7 @@ def main():
     modeldir.mkdir(parents=True, exist_ok=True)
     torch.save(
         model.state_dict(),
-        f"{modeldir}/{args.dataset}-{args.model}-{LEARNING_RATE}lr-{PADDING}pad.pth",
+        f"{modeldir}/{args.dataset}-{args.model}-{PADDING}pad.pth",
     )
 
 

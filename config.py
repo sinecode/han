@@ -11,7 +11,7 @@ EMBEDDING_SIZE = 200
 BIDIRECTIONAL = 2  # set to 1 (not bidirectional) or 2 (bidirectional)
 WORD_HIDDEN_SIZE = 50
 SENT_HIDDEN_SIZE = 50
-PADDING = 90  # percentage of the documents to cover with the padding
+PADDING = 80  # percentage of the documents to cover with the padding
 
 # Others
 DEVICE = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")

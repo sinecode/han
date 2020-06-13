@@ -66,8 +66,8 @@ Document classification, in percentage
 |---------------------------|----------|-----------|------------|
 | **BoW**                   |   61.3   |   66.9    |    52.2    |
 | **BoW-TFIDF**             |   61.3   |   66.9    |    52.2    |
-| **Flat Attention**        |   67.0   |   73.8    |    60.4    |
-| **Hierachical Attention** |   67.3   |   73.9    |    60.9    |
+| **Flat Attention**        |   65.6   |   74.1    |    61.7    |
+| **Hierachical Attention** |   65.6   |   74.4    |    62.5    |
 
 ## Notes
 
