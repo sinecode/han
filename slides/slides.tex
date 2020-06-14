@@ -289,8 +289,7 @@ Amazon review & 5 & 3,650,000  \\
 The proposed model is compared with three other models:
 \begin{itemize}
 \item BoW (Bag-of-Words)
-\item BoW + TFIDF
-\item Flatte Attention Network (FAN)
+\item Flat Attention Network (FAN)
 \end{itemize}
 \end{itemize}
 
@@ -305,25 +304,23 @@ Note that the results of the FAN model is not reported in the paper.
 \item
 The 50,000 most frequent words from the training set are selected and the count of each word is used as features.
 \item
-BoW+TFIDF uses the TFIDF of counts as features, normalized by dividing by the largest value.
-\item
 A Stochastic Gradient Descent classifier is used together with a logistic regression loss.
 \item
 A grid search cross-validation is used to find the best value for the regularization term $\alpha$.
 \end{itemize}
 
 \begin{table}[]
-\begin{tabular}{c|c|c|c|c|}
-\cline{2-5}
-                       & \multicolumn{2}{c|}{\textbf{BoW}} & \multicolumn{2}{c|}{\textbf{BoW + TFIDF}} \\
+\begin{tabular}{c|c|c|}
+\cline{2-3}
+                       & \multicolumn{2}{c|}{\textbf{BoW}} \\
 \hline
-\multicolumn{1}{|c|}{\textbf{Data set}} & \textbf{Yang et al. \cite{yang2016hierarchical}} &  \textbf{Observed} &  \textbf{Yang et al. \cite{yang2016hierarchical}} & \textbf{Observed} \\
+\multicolumn{1}{|c|}{\textbf{Data set}} & \textbf{Yang et al. \cite{yang2016hierarchical}} &  \textbf{Observed} \\
 \hline
-\multicolumn{1}{|c|}{Yelp} & 58.0 & 61.3 & 59.9 & 61.3 \\
+\multicolumn{1}{|c|}{Yelp} & 58.0 & 61.3 \\
 \hline
-\multicolumn{1}{|c|}{Yahoo} & 68.9 & 66.9 & 71.0 & 66.9 \\
+\multicolumn{1}{|c|}{Yahoo} & 68.9 & 66.9 \\
 \hline
-\multicolumn{1}{|c|}{Amazon} & 54.4 & 52.2 & 55.3 & 52.2 \\
+\multicolumn{1}{|c|}{Amazon} & 54.4 & 52.2 \\
 \hline
 \end{tabular}
 \caption{\small{Document classification, in percentage}}
