@@ -34,7 +34,7 @@
 
 \begin{itemize}
 \item
-The goal of this project is to replicate the experiments of the 2016 paper \cite{yang2016hierarchical}.
+The goal of this project is to replicate the experiments of the 2016 paper of Yang et al. \cite{yang2016hierarchical}.
 \item
 The main topic of the paper is document classification.
 \item
@@ -48,52 +48,52 @@ All the code used for the experiments are available at \url{https://github.com/c
 \end{frame}
 
 
-\begin{frame}{Recurrent Neural Networks}
-\small{
-\begin{itemize}
-\item
-A RNN is an extension of a conventional feedforward neural network, which is able to handle a variable-length sequence input.
-\item
-The RNN handles the variable-length input sequence by having a recurrent hidden state whose activation at each time is dependent on that of the previous time.
-\end{itemize}
-
-Given an input sequence $\mathbf{x}=\left(x_1, \dots, x_T\right)$, traditionally the RNN updates its recurrent hidden state $\mathbf{h}_t$ with
-
-\begin{align}
-\mathbf{h_t} = g\left(W\mathbf{x}_t + U\mathbf{h}_{t-1}\right)
-\end{align}
-
-where $g$ is a smooth, bounded function. Optionally, the RNN may have an output $\mathbf{y}$ which may again be of variable length.
-}
-\end{frame}
-
-
-\begin{frame}{Recurrent Neural Networks}
-
-\begin{itemize}
-\item
-Unfortunately, it has been observed that is difficult to train RNNs to capture long-term dependencies because the gradient tend to either vanish or explode.
-\item
-There have been two dominant approaches by which many researchers have tried to reduce the negative impacts of this issue:
-\begin{itemize}
-\item
-Better learning algorithm (\textit{gradient clipping}, \textit{second-order methods})
-\item
-More sophisticated activation function consisting of affine transformation followed by a simple element-wise nonlinearity by using gating units (LSTM, GRU)
-\end{itemize}
-\end{itemize}
-
-\end{frame}
+%\begin{frame}{Recurrent Neural Networks}
+%\small{
+%\begin{itemize}
+%\item
+%A RNN is an extension of a conventional feedforward neural network, which is able to handle a variable-length sequence input.
+%\item
+%The RNN handles the variable-length input sequence by having a recurrent hidden state whose activation at each time is dependent on that of the previous time.
+%\end{itemize}
+%
+%Given an input sequence $\mathbf{x}=\left(x_1, \dots, x_T\right)$, traditionally the RNN updates its recurrent hidden state $\mathbf{h}_t$ with
+%
+%\begin{align}
+%\mathbf{h_t} = g\left(W\mathbf{x}_t + U\mathbf{h}_{t-1}\right)
+%\end{align}
+%
+%where $g$ is a smooth, bounded function. Optionally, the RNN may have an output $\mathbf{y}$ which may again be of variable length.
+%}
+%\end{frame}
 
 
-\begin{frame}{LSTM unit and GRU}
-
-\begin{itemize}
-\item
-The Long Short-Term Memory (LSTM) unit was introduced in 1997 by Hochreiter and Schmidhuber \cite{hochreiter1997long}.
-\item
-A Gated Recurrent Unit (GRU) was proposed in 2014 by Cho et al. \cite{cho2014properties}. It's a simplified version of the LSTM unit that doesn't have two separated memory cells.
-\end{itemize}
+%\begin{frame}{Recurrent Neural Networks}
+%
+%\begin{itemize}
+%\item
+%Unfortunately, it has been observed that is difficult to train RNNs to capture long-term dependencies because the gradient tend to either vanish or explode.
+%\item
+%There have been two dominant approaches by which many researchers have tried to reduce the negative impacts of this issue:
+%\begin{itemize}
+%\item
+%Better learning algorithm (\textit{gradient clipping}, \textit{second-order methods})
+%\item
+%More sophisticated activation function consisting of affine transformation followed by a simple element-wise nonlinearity by using gating units (LSTM, GRU)
+%\end{itemize}
+%\end{itemize}
+%
+%\end{frame}
+%
+%
+%\begin{frame}{LSTM unit and GRU}
+%
+%\begin{itemize}
+%\item
+%The Long Short-Term Memory (LSTM) unit was introduced in 1997 by Hochreiter and Schmidhuber \cite{hochreiter1997long}.
+%\item
+%A Gated Recurrent Unit (GRU) was proposed in 2014 by Cho et al. \cite{cho2014properties}. It's a simplified version of the LSTM unit that doesn't have two separated memory cells.
+%\end{itemize}
 
 %\begin{figure}
 %\centering
@@ -110,27 +110,27 @@ A Gated Recurrent Unit (GRU) was proposed in 2014 by Cho et al. \cite{cho2014pro
 %\end{subfigure}
 %\end{figure}
 
-\end{frame}
-
-
-\begin{frame}{LSTM unit and GRU}
-
-\begin{itemize}
-\item
-Chung et al. \cite{chung2014empirical} in 2014 demonstrated with various experiments that these two variations outperform the vanilla RNN units, but they weren't able to establish which of the two gating units was better.
-\item
-Greff et al. \cite{greff2016lstm} in 2017 evaluated eight different LSTM variations (including the GRU) and they concluded that the vanilla LSTM performs reasonably well on various data sets. However, the GRU simplifies the vanilla LSTM without significantly decreasing performance. The GRU can be preferred because it reduces the number of parameters and the computational cost.
-\end{itemize}
-
-\end{frame}
+%\end{frame}
+%
+%
+%\begin{frame}{LSTM unit and GRU}
+%
+%\begin{itemize}
+%\item
+%Chung et al. \cite{chung2014empirical} in 2014 demonstrated with various experiments that these two variations outperform the vanilla RNN units, but they weren't able to establish which of the two gating units was better.
+%\item
+%Greff et al. \cite{greff2016lstm} in 2017 evaluated eight different LSTM variations (including the GRU) and they concluded that the vanilla LSTM performs reasonably well on various data sets. However, the GRU simplifies the vanilla LSTM without significantly decreasing performance. The GRU can be preferred because it reduces the number of parameters and the computational cost.
+%\end{itemize}
+%
+%\end{frame}
 
 
 \begin{frame}{Attention mechanism}
 \begin{itemize}
 \item
-Attention mechanism was first introduced by Bahdanau et al. in 2014 \cite{bahdanau2014neural} as a new encoder-decoder architecture in the topic of machine translation.
+Attention mechanism was first introduced by Bahdanau et al. in 2014 \cite{bahdanau2014neural} as a new RNN encoder-decoder architecture in the topic of machine translation.
 \item
-The previously proposed encoder-decoder models encode a source sentence into a fixed-length vector from which a decoder generates a translation.
+The previously proposed RNN encoder-decoder models encode a source sentence into a fixed-length vector from which a decoder generates a translation.
 \item
 Bahdanau et al. conjectured that the use of a fixed-length vector is a bottleneck in improving the performance of these models, so they proposed a new method that automatically (soft-)search for parts of a source sentence that are relevant to predict a target word.
 \end{itemize}
@@ -446,6 +446,8 @@ I've tried to reproduce this attention visualization.
 
 \begin{frame}{Yelp - Attention visualization}
 
+label = 5; predicted = 5
+
 \begin{figure}
 \centering
 \includegraphics[scale=0.15]{img/yelp-han-visual}
@@ -456,6 +458,8 @@ I've tried to reproduce this attention visualization.
 
 \begin{frame}{Yahoo - Attention visualization}
 
+label = \textit{Computers \& Internet}; predicted = \textit{Computers \& Internet}
+
 \begin{figure}
 \centering
 \includegraphics[scale=0.15]{img/yahoo-han-visual}
@@ -465,6 +469,8 @@ I've tried to reproduce this attention visualization.
 
 
 \begin{frame}{Amazon - Attention visualization}
+
+label = 1; predicted = 1
 
 \begin{figure}
 \centering
@@ -483,9 +489,29 @@ To verify that my model works properly, I've created a synthetic data set compos
 After the training, the model is always able to identify the keyword and it always predict the correct label (100\% on test set)
 \end{itemize}
 
+\begin{table}[]
+\begin{tabular}{|c|c|}
+\hline
+\textbf{Keywords} & \textbf{Label} \\
+\hline
+\textit{bad, worst, dirty, irritating, disgusting} & 0 \\
+\hline
+\textit{vague, vain, untouchable, selfish, rude} & 1 \\
+\hline
+\textit{perverse, possessive, arrogant, cruel, calm} & 2 \\
+\hline
+\textit{clever, comfortable, creative, clean, gentle} & 3 \\
+\hline
+\textit{nice, fantastic, good, modern, quite} & 4 \\
+\hline
+\end{tabular}
+\end{table}
+
 \end{frame}
 
 \begin{frame}{Synthetic data set - Attention visualization}
+
+label = 0; predicted = 0
 
 \begin{figure}
 \centering
@@ -504,6 +530,27 @@ However, I wasn't able to obtain the scores reported in the paper with none of t
 \item
 Maybe, it was due to the padding/cropping procedure that I had to implement to limit the computational cost.
 \end{itemize}
+
+\footnotesize{
+
+\begin{table}[]
+\begin{tabular}{c|c|c|c|c|c|}
+\cline{2-6}
+                       & \multicolumn{2}{c|}{\textbf{BoW}} & \textbf{FAN} & \multicolumn{2}{c|}{\textbf{HAN}} \\
+\hline
+\multicolumn{1}{|c|}{\textbf{Data set}} & \textbf{Yang et al. \cite{yang2016hierarchical}} & \textbf{Observed} & \textbf{Observed} & \textbf{Yang et al. \cite{yang2016hierarchical}} & \textbf{Observed} \\
+\hline
+\multicolumn{1}{|c|}{Yelp} & 58.0 & 61.3 & 65.6 & 68.2 & 65.6 \\
+\hline
+\multicolumn{1}{|c|}{Yahoo} & 68.9 & 66.9 & 74.1 & 75.8 & 74.4 \\
+\hline
+\multicolumn{1}{|c|}{Amazon} & 54.4 & 52.2 & 61.7 & 63.6 & 62.5 \\
+\hline
+\end{tabular}
+\caption{\small{Document classification, in percentage}}
+\end{table}
+
+}
 
 \end{frame}
 
